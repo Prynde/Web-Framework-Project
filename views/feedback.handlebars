@@ -2,18 +2,20 @@
 <br>
 {{> navigation}}
 <br>
-<div class="formbox">
-    <form action="/send-feedback" method="POST">
-        <label for="email">Your email address:</label>
-        <input type="email" id="email" name="email" required><br>
-        <input type="radio" id="feedback" name="subject" value="feedback">
-        <label for="feedback" class="subject">Feedback</label><br>
-        <input type="radio" id="issue" name="subject" value="issue">
-        <label for="issue" class="subject">Found an issue that needs fixing</label><br><br>
-        <label for="text">Your message:</label>
-        <textarea name="text" rows="5" cols="46"></textarea>
-        <br>
-        <br>
-        <input type="submit" value="Send">
-    </form>
+<div class="maincontent">
+    <div class="formbox">
+        <form action="/send-feedback" method="POST">
+            <label for="email">Your email address:</label>
+            <input type="email" id="email" name="email" required><br>
+            <input type="radio" id="feedback" name="subject" value="feedback">
+            <label for="feedback" class="subject">Feedback</label><br>
+            <input type="radio" id="issue" name="subject" value="issue">
+            <label for="issue" class="subject">Found an issue that needs fixing</label><br><br>
+            <label for="text">Your message:</label>
+            <textarea name="text" rows="5" cols="46"></textarea>
+            <br>
+            <br>
+            <input type="submit" value="Send">
+        </form>
+    </div>
 </div>

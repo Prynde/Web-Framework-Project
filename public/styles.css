@@ -26,6 +26,7 @@ h1 {
 form {
 	display: block;
 	width: 100%;
+    margin: 0 auto;
 	max-width: 400px;
 	padding: 50px 30px;
 	background-image: linear-gradient(to bottom, #00BC7E, #108775);
@@ -97,17 +98,30 @@ form input[type="submit"] {
 }
 
 .maincontent {
-    margin-left: 15px;
+    margin: auto;
+    width: 50%;
 }
 
-.weatherbox {
+.weatherbox, .infobox {
     display: block;
 	width: 100%;
 	max-width: 400px;
 	padding: 10px 30px;
+    margin: 0 auto;
 	background-image: linear-gradient(to bottom, #00BC7E, #108775);
 	box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
 	border-radius: 16px;
+    float: left;
+}
+
+.infobox {
+    color:#eee;
+	font-size: 20px;
+    text-align: center;
+}
+
+#row1 {
+    display: flex;
 }
 
 .boxtitle {
@@ -130,5 +144,20 @@ form input[type="submit"] {
 	margin-bottom: 5px;
     width: 50%;
     float: left;
+    text-align: center;
+}
+
+.blogs {
+    display: block;
+	width: 100%;
+    max-width: 880px;
+    margin: 0 auto;
+    margin-top: 15px;
+	padding: 10px 30px;
+	background-image: linear-gradient(to bottom, #00BC7E, #108775);
+	box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+	border-radius: 16px;
+    color:#eee;
+	font-size: 20px;
     text-align: center;
 }

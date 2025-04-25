@@ -8,6 +8,7 @@ app.use(express.urlencoded({extented: false}));
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const mongoose = require('mongoose');
 
 app.use(session({
   secret: 'You will never guess it',
@@ -43,6 +44,21 @@ checkAuth = (request, response, next) => {
     }
     response.redirect('/admin/login')
 }
+
+/*
+
+// Should the connection be always open or opened and closed as needed inside a function?
+
+const dbURI = 'mongodb+srv://' + process.env.DBUSERNAME + ':' + process.env.DBPASSWORD + '@' + process.env.CLUSTER + '.c7byj1n.mongodb.net/' + process.env.DB + '?retryWrites=true&w=majority&appName=Hamk-projects';
+
+mongoose.connect(dbURI)
+.then((result) => {
+    console.log('Connected to the DB');
+})
+.catch((err) => {
+    console.log(err);
+});
+*/
 
 app.engine('handlebars', exphbs.engine({
     defaultLayout: 'main'
@@ -152,12 +168,11 @@ function visitors() {   // Return count of visitors since 01.04.2025
         hours = hours - 10;
         visitorCount = visitorCount + (hours * 30) + Math.round(minutes / 2);
     } else if (hours >= 22) {
-        hours = hours - 10;
-        visitorCount = visitorCount + (hours * 30);
+        visitorCount = visitorCount + 360;
     }
     return visitorCount;
 }
- var wmo = {
+var wmo = {
     0: "Clear sky",
     1: "Mainly clear, partly cloudy, and overcast",
     2: "Mainly clear, partly cloudy, and overcast",
@@ -186,7 +201,7 @@ function visitors() {   // Return count of visitors since 01.04.2025
     95:	"Thunderstorm: Slight or moderate",
     96: "Thunderstorm with slight and heavy hail",
     99:	"Thunderstorm with slight and heavy hail"
- };
+};
 async function weather() {
     let weatherData = await fetch('https://api.open-meteo.com/v1/forecast?latitude=60.9167&longitude=24.6333&daily=temperature_2m_max,temperature_2m_min&current=temperature_2m,wind_direction_10m,cloud_cover,wind_speed_10m,wind_gusts_10m,precipitation,weather_code&timezone=auto')
     .then(res => res.json())

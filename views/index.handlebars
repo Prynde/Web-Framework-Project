@@ -3,37 +3,44 @@
 {{> navigation}}
 <br>
 <div class="maincontent">
-    <p>Visitors since 01.04.2025: {{visitors}}</p>
-    <p>Park is open daily between 10am-10pm</p>
-
-    <div class="weatherbox">
-        <div class="boxtitle">
-            Current weather:
+    <div id="row1">
+        <div class="infobox">
+            <p>Visitors since 01.04.2025: {{visitors}}</p><br>
+            <p>Park is open daily from 10am till 10pm</p>
         </div>
-        <div class="curweather">
-            Temperature: {{currentTemperature}}°C
-        </div>
-        <div class="weatherinfo">
-            Highest: {{todayHigh}}°C<br>
-            Lowest: {{todayLow}}°C
-        </div>
-        <div class="weatherinfo">
-            Wind direction:<img src="arrow.svg" style="transform:rotate({{windDir}}deg); width: 30px; height: 30px;">
+        <div class="weatherbox">
+            <div class="boxtitle">
+                Current weather:
+            </div>
+            <div class="curweather">
+                Temperature: {{currentTemperature}}°C
+            </div>
+            <div class="weatherinfo">
+                Highest: {{todayHigh}}°C<br>
+                Lowest: {{todayLow}}°C
+            </div>
+            <div class="weatherinfo">
+                Wind direction:<img src="arrow.svg" style="transform:rotate({{windDir}}deg); width: 30px; height: 30px;">
+            </div>
+            <br style='clear: left;'>
+            <div class="weatherinfo">
+                Clouds: {{clouds}}%
+            </div>
+            <div class="weatherinfo">
+                Wind speed: {{windspeed}} ({{windgusts}}) km/h
+            </div>
+            <br style='clear: left;'>
+            <div class="weatherinfo">
+                Precipitation: {{precipitation}}mm
+            </div>
+            <div class="weatherinfo">
+                {{weathercode}}
+            </div>
+            <br style='clear: left;'>
         </div>
         <br style='clear: left;'>
-        <div class="weatherinfo">
-            Clouds: {{clouds}}%
-        </div>
-        <div class="weatherinfo">
-            Wind speed: {{windspeed}} ({{windgusts}}) km/h
-        </div>
-        <br style='clear: left;'>
-        <div class="weatherinfo">
-            Precipitation: {{precipitation}}mm
-        </div>
-        <div class="weatherinfo">
-            {{weathercode}}
-        </div>
-        <br style='clear: left;'>
+    </div>
+    <div class="blogs">
+        This could be a great place for some blog posts?
     </div>
 </div>
