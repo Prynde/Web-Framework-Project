@@ -162,6 +162,9 @@ function visitors() {   // Return count of visitors since 01.04.2025
     let timeDifference = end - start;
     let visitorCount = timeDifference / (1000 * 3600 * 24) * 30 * 12; // Counting average one visitor per 2 minutes during opening hours 10am-10pm
     const date = new Date();
+    if (date.getUTCHours() >= (24 - (Math.abs((new Date().getTimezoneOffset())) / 60))) { // Hack to fix counting error for the first few hours of the day, "end" receives date as GMT+0 and "hours" receive date(hours) as GMT+2/3 depending on DST
+        visitorCount = visitorCount + 360;
+    }
     let hours = date.getHours();
     let minutes = date.getMinutes();
     if (hours >= 10 && hours <= 21) {
