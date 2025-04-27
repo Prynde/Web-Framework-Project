@@ -10,7 +10,14 @@
             {{#each feedbacks}}
                 <li>
                     <h3>{{this.email}}</h3>
-                    <p>{{this.status}}</p>
+                    <form action="/save-changes" method="POST">
+                        <input type="hidden" id="feedback">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status">
+                            <option value="New" {{#if this.status == "New"}}selected{{/if}}>New</option>
+                            <option value="Read" {{#if this.status == "Read"}}selected{{/if}}>Read</option>
+                        </select>
+                    </form>
                     <p>{{this.subject}}</p>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>
