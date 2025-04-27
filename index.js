@@ -86,38 +86,30 @@ BLOG POST ROUTES
 
 const Post = require('./models/post'); // import the post schema
 
-/*
-app.post('/admin/save-post', checkAuth, (req, res) => {
-    const { title, content } = req.body; 
-    const newPost = new Post({ title, content });
-
-    newPost.save()
-        .then(() => {
-            res.redirect('/admin/new-post'); // redirect to the new post page after saving
-            console.log("Saved post"); // print successful blog saves to console as there's no frontend view as of now
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send('Error saving the post');
-        });
-});
-
-app.get('/admin/new-post', checkAuth, (request, response) => {
-    response.render('new-post')
-}); 
-*/
-
 /* VALIDATE AND SANITATE INPUTS */
 
 const { body, validationResult } = require('express-validator');
-const { sanitizeBody } = require('express-validator');
-const { escape } = require('validator');
+const { escape } = require('validator'); 
 
-app.post('/admin/new-post',
-    body('title').notEmpty().withMessage('Title is required'),
-    body('content').notEmpty().withMessage('Content is required'),
-    sanitizeBody('title').escape(),
-    sanitizeBody('content').escape(),
+app.post('/admin/save-post',
+    body('title')
+    .trim()
+    .escape()
+    .notEmpty()
+    .withMessage('Title is required')
+    .isLength({ max: 200 })
+    .withMessage('Title must be under 200 characters'), 
+    // Trim and escape the title input, escape prevents script injections
+
+body('content')
+    .trim()
+    .escape()
+    .notEmpty()
+    .withMessage('Content is required')
+    .isLength({ max: 5000 })
+    .withMessage('Content must be under 5000 characters'), 
+    // Trim and escape the content input, same stuff as above
+
     (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -158,7 +150,30 @@ app.get('/feedback', (request, response) => {
 
 const Feedback = require('./models/feedback'); // import the feedback schema
 
-app.post('/send-feedback', (request, response) => {
+// VALIDATE AND SANITATE INPUTS FOR FEEDBACK FORM
+
+const feedbackValidation = [
+    body('email')
+        .isEmail()
+        .withMessage('Invalid email address')
+        .normalizeEmail(),
+    body('subject')
+        .trim()
+        .escape()
+        .notEmpty()
+        .withMessage('Subject is required')
+        .isIn(['feedback', 'issue'])
+        .withMessage('Subject must be feedback or issue'),
+    body('content')
+        .trim()
+        .escape()
+        .notEmpty()
+        .withMessage('Content is required')
+        .isLength({ max: 2000 })
+        .withMessage('Content must be under 2000 characters')
+];
+
+app.post('/send-feedback', feedbackValidation, (request, response) => {
     // Nodemailer
     sendMail(request.body.email, request.body.subject, request.body.content);
     /*
@@ -188,7 +203,19 @@ app.get('/thank-you', (request, response) => {
     )
 });
 
+/* ADMIN LOGIN VALIDATION */
 
+const loginValidation = [
+    body('username')
+        .trim()
+        .escape()
+        .notEmpty()
+        .withMessage('Username is required'),
+    body('password')
+        .trim()
+        .notEmpty()
+        .withMessage('Password is required')
+];
 /* 
 ADMIN LOGIN ROUTES
 */
@@ -197,7 +224,7 @@ app.get('/admin/login', (request, response) => {
     response.render('login')
 });
 
-app.post('/login/password', passport.authenticate('local', {
+app.post('/login/password', loginValidation, passport.authenticate('local', {
     successRedirect: '/admin/new-post',
     failureRedirect: '/admin/login'
 }));
@@ -340,6 +367,9 @@ app.get('/', async (req, res) => {
         res.status(500).send('Error retrieving data');
     }
 });
+
+
+
 
 
 function visitors() {   // Return count of visitors since 01.04.2025
