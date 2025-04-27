@@ -192,6 +192,11 @@ app.get('/', async (req, res) => {
         const cleanedPosts = posts.map(post => ({
             title: post.title,
             content: post.content,
+            // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
+            contentReplace: post.content
+                .split(/\r?\n\r?\n/) 
+                .map(p => `<p>${p}</p>`)
+                .join(''),
             date: post.createdAt.toLocaleDateString('en-GB', {
                 weekday: 'long', 
                 year: 'numeric',
