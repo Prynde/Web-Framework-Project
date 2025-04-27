@@ -2,11 +2,11 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+	font-family: Geneva, Tahoma, sans-serif;
 }
 
+
 body {
-    
     background-color: lightgreen;
     background-image: linear-gradient(to bottom right, lightgreen 10%, darkgreen);
     min-height: 100vh;
@@ -15,7 +15,7 @@ body {
 
 h1 {
     background-color: mediumseagreen;
-    color:aqua;
+    color: #333; 
     padding: 1em 2em;
 }
 
@@ -40,13 +40,13 @@ form .form-group {
 
 form label:not([class="subject"]) {
 	display: block;
-	color:#eee;
+	color: #333;
 	font-size: 14px;
 	margin-bottom: 5px;
 }
 
 form label[class="subject"] {
-	color:#eee;
+	color: #333;
 	font-size: 14px;
 	margin-bottom: 5px;
 }
@@ -55,7 +55,8 @@ form input:not([type="radio"]) {
 	appearance: none;
 	background: none;
 	outline: none;
-	border: none;}
+	border: none;
+}
 
 form input:not([type="submit"], [type="radio"]) {
 	display: block;
@@ -84,7 +85,7 @@ form input[type="submit"] {
 	width: 100%;
 	padding: 15px;
 	border-radius: 8px;
-	background-color: #2F4960;
+	background-color: #0a574c;
 	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
 	transition: 0.4s;
 	color: #FFF;
@@ -92,6 +93,7 @@ form input[type="submit"] {
 	font-weight: 700;
 	cursor: pointer;
 }
+
 
 .formbox {
     margin-left: 15px;
@@ -115,7 +117,7 @@ form input[type="submit"] {
 }
 
 .infobox {
-    color:#eee;
+    color: #eee;
 	font-size: 20px;
     text-align: center;
 }
@@ -125,21 +127,21 @@ form input[type="submit"] {
 }
 
 .boxtitle {
-    color:#eee;
+    color: #eee;
 	font-size: 28px;
 	margin-bottom: 5px;
     text-align: center;
 }
 
 .curweather {
-    color:#eee;
+    color: #eee;
 	font-size: 20px;
 	margin-bottom: 5px;
     text-align: center;
 }
 
 .weatherinfo {
-    color:#eee;
+    color: #eee;
 	font-size: 14px;
 	margin-bottom: 5px;
     width: 50%;
@@ -147,17 +149,145 @@ form input[type="submit"] {
     text-align: center;
 }
 
+/* blog section styling */
+
 .blogs {
     display: block;
 	width: 100%;
-    max-width: 880px;
+    max-width: 865px;
     margin: 0 auto;
     margin-top: 15px;
 	padding: 10px 30px;
 	background-image: linear-gradient(to bottom, #00BC7E, #108775);
 	box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
 	border-radius: 16px;
-    color:#eee;
+    color: #eee;
 	font-size: 20px;
+    text-align: left;
+}
+
+.blogs h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: left;
+}
+
+.blogs ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.blogs li {
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 8px;
+	background-image: linear-gradient(to bottom, lightgreen, #00BC7E);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1000px;
+    margin: 10px auto;
+}
+
+.blogs li h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.blogs li p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+
+@media (max-width: 768px) {
+    .weatherbox, .infobox {
+        width: 100%;
+    }
+
+    .maincontent {
+        padding: 10px;
+    }
+
+    .blogs li {
+        width: 100%;
+    }
+}
+
+
+/* button styles  */
+
+button {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
     text-align: center;
+    border-radius: 8px;
+    background-color: #0d6d5e; 
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #107a6a;
+    outline: 3px solid #1bc2a9;
+}
+
+button:active {
+    background-color: #0d6d5e;
+    transform: translateY(0); 
+}
+
+
+/* navigation bar  */
+
+.navigation {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%;
+    padding: 15px 30px; 
+    background-color: #0a574c; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0; 
+}
+
+/* main & feedback links */
+.left-links {
+    display: flex;
+    gap: 15px;
+}
+
+/* login link */ 
+.login-link {
+    margin-left: auto; /* pushes the login link to the right */
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.navigation-link {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 1.2rem;
+    padding: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.navigation-link:hover {
+    background-color: #107a6a;
+    color: #fff;
+}
+
+.navigation-link:active {
+    background-color: #0d6d5e;
+    transform: translateY(0);
 }

@@ -182,12 +182,25 @@ async function sendMail(email, subject, text) {
 }
 
 
-/* VISITOR AND WEATHER DATA ROUTES & FUNCTIONS */
+/* VISITOR, BLOG POSTS AND WEATHER DATA */
 
-app.get('/', async (request, response) => {
-    let weatherData = await weather();
-    response.render('index',
-        {
+app.get('/', async (req, res) => {
+    try {
+        let weatherData = await weather();
+        const posts = await Post.find();
+
+        const cleanedPosts = posts.map(post => ({
+            title: post.title,
+            content: post.content,
+            date: post.createdAt.toLocaleDateString('en-GB', {
+                weekday: 'long', 
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            }).replace(/\//g, '.') // replace slashes for dots in date formatting
+        }));
+
+        res.render('index', {
             title: 'Our Park',
             visitors: visitors(),
             currentTemperature: weatherData.current.temperature_2m,
@@ -198,10 +211,15 @@ app.get('/', async (request, response) => {
             windspeed: weatherData.current.wind_speed_10m,
             windgusts: weatherData.current.wind_gusts_10m,
             precipitation: weatherData.current.precipitation,
-            weathercode: wmo[weatherData.current.weather_code]
-        }
-    )
+            weathercode: wmo[weatherData.current.weather_code],
+            posts: cleanedPosts
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving data');
+    }
 });
+
 
 function visitors() {   // Return count of visitors since 01.04.2025
     let start = new Date('2025-04-01');

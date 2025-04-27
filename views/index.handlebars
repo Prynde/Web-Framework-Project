@@ -40,7 +40,21 @@
         </div>
         <br style='clear: left;'>
     </div>
-    <div class="blogs">
-        This could be a great place for some blog posts?
-    </div>
+<div class="blogs">
+    <h2>Blog Posts</h2>
+    {{#if posts.length}}
+        <ul>
+            {{#each posts}}
+                <li>
+                    <h3>{{this.title}}</h3>
+                    <p>{{this.date}}</p>
+                    <p>{{this.content}}</p>
+                </li>
+            {{/each}}
+        </ul>
+    {{else}}
+        <p>No blog posts available at the moment.</p>
+    {{/if}}
+</div>
+
 </div>
