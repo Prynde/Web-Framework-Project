@@ -26,29 +26,31 @@ h1 {
 form {
 	display: block;
 	width: 100%;
-    margin: 0 auto;
-	max-width: 400px;
-	padding: 50px 30px;
+    margin: 40px auto;
+	max-width: 600px;
+	padding: 60px 40px;
 	background-image: linear-gradient(to bottom, #00BC7E, #108775);
-	box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
-	border-radius: 16px;
+	box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+	border-radius: 20px;
 }
 
 form .form-group {
-	margin-bottom: 30px;
+	margin-bottom: 25px;
 }
 
 form label:not([class="subject"]) {
 	display: block;
-	color: #333;
-	font-size: 14px;
-	margin-bottom: 5px;
+	color: #222;
+	font-size: 16px;
+	margin-bottom: 8px;
+	font-weight: 500;
 }
 
 form label[class="subject"] {
-	color: #333;
-	font-size: 14px;
-	margin-bottom: 5px;
+	color: #222;
+	font-size: 16px;
+	margin-bottom: 8px;
+	font-weight: 500;
 }
 
 form input:not([type="radio"]) {
@@ -61,21 +63,22 @@ form input:not([type="radio"]) {
 form input:not([type="submit"], [type="radio"]) {
 	display: block;
 	width: 100%;
-	padding: 15px;
-	border-radius: 8px;
-	background-color: rgba(0, 0, 0, 0.2);
-	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
-	transition: 0.4s;
+	padding: 18px;
+	border-radius: 10px;
+	background-color: rgba(255, 255, 255, 0.8);
+	box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+	transition: 0.3s;
 	color: #222;
 	font-size: 18px;
-	font-weight: 300;
+	font-weight: 400;
 }
 
 form input:not([type="submit"], [type="radio"])::placeholder {
-	color: #CCC;
+	color: #666;
 }
 
-form input:not([type="submit"], [type="radio"]):focus, form input:not([type="submit"], [type="radio"]):valid {
+form input:not([type="submit"], [type="radio"]):focus,
+form input:not([type="submit"], [type="radio"]):valid {
 	background-color: #fff;
 	box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
 }
@@ -83,21 +86,45 @@ form input:not([type="submit"], [type="radio"]):focus, form input:not([type="sub
 form input[type="submit"] {
 	display: block;
 	width: 100%;
-	padding: 15px;
-	border-radius: 8px;
+	padding: 18px;
+	border-radius: 10px;
 	background-color: #0a574c;
-	box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
-	transition: 0.4s;
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+	transition: 0.3s;
 	color: #FFF;
-	font-size: 20px;
+	font-size: 22px;
 	font-weight: 700;
 	cursor: pointer;
 }
 
+form input[type="submit"]:hover {
+	background-color: #083f38;
+}
 
 .formbox {
     margin-left: 15px;
 }
+
+form textarea {
+    resize: vertical;
+	width: 100%;
+	padding: 18px;
+	border-radius: 10px;
+	background-color: rgba(255, 255, 255, 0.8);
+	box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+	color: #222;
+	font-size: 18px;
+	font-weight: 400;
+	transition: 0.3s;
+	border: none;
+	outline: none;
+}
+
+form textarea:focus {
+	background-color: #fff;
+	box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+}
+
 
 .maincontent {
     margin: auto;
