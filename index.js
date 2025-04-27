@@ -4,11 +4,13 @@ const dotenv = require('dotenv');
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({extented: false}));
+app.use(express.urlencoded({extended: false}));
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const mongoose = require('mongoose');
+
+app.use(express.static('public'));
 
 app.use(session({
   secret: 'You will never guess it',
@@ -38,15 +40,19 @@ passport.use(
     })
 );
 
-checkAuth = (request, response, next) => {
+const checkAuth = (request, response, next) => {
     if (request.isAuthenticated()) { 
         return next()
     }
     response.redirect('/admin/login')
 }
 
-/*
+app.engine('handlebars', exphbs.engine({
+    defaultLayout: 'main'
+}));
+app.set('view engine', 'handlebars');
 
+/*
 // Should the connection be always open or opened and closed as needed inside a function?
 
 const dbURI = 'mongodb+srv://' + process.env.DBUSERNAME + ':' + process.env.DBPASSWORD + '@' + process.env.CLUSTER + '.c7byj1n.mongodb.net/' + process.env.DB + '?retryWrites=true&w=majority&appName=Hamk-projects';
@@ -60,30 +66,49 @@ mongoose.connect(dbURI)
 });
 */
 
-app.engine('handlebars', exphbs.engine({
-    defaultLayout: 'main'
-}));
 
-app.set('view engine', 'handlebars');
+// alternative option; run mongodb locally? 
+// this should work as of now if you run a mongodb server locally & create a database called WebFrameworkProject
+// -mirkka
 
-app.get('/', async (request, response) => {
-    let weatherData = await weather();
-    response.render('index',
-        {
-            title: 'Our Park',
-            visitors: visitors(),
-            currentTemperature: weatherData.current.temperature_2m,
-            todayHigh: weatherData.daily.temperature_2m_max[0],
-            todayLow: weatherData.daily.temperature_2m_min[0],
-            windDir: weatherData.current.wind_direction_10m,
-            clouds: weatherData.current.cloud_cover,
-            windspeed: weatherData.current.wind_speed_10m,
-            windgusts: weatherData.current.wind_gusts_10m,
-            precipitation: weatherData.current.precipitation,
-            weathercode: wmo[weatherData.current.weather_code]
-        }
-    )
+
+/* BLOG DATABASE CONNECTION */
+
+mongoose.connect('mongodb://localhost:27017/WebFrameworkProject')
+.then(() => console.log('Connected to MongoDB'))
+.catch((error) => console.error('MongoDB connection error:', error));
+
+
+/* 
+BLOG POST ROUTES
+*/
+
+const Post = require('./models/post'); // import the post schema
+
+app.post('/admin/save-post', checkAuth, (req, res) => {
+    const { title, content } = req.body; 
+    const newPost = new Post({ title, content });
+
+    newPost.save()
+        .then(() => {
+            res.redirect('/admin/new-post'); // redirect to the new post page after saving
+            console.log("Saved post"); // print successful blog saves to console as there's no frontend view as of now
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send('Error saving the post');
+        });
 });
+
+app.get('/admin/new-post', checkAuth, (request, response) => {
+    response.render('new-post')
+});
+
+
+
+/* 
+FEEDBACK FORM ROUTES
+*/
 
 app.get('/feedback', (request, response) => {
     response.render('feedback',
@@ -94,8 +119,8 @@ app.get('/feedback', (request, response) => {
 });
 
 app.post('/send-feedback', (request, response) => {
-    sendMail(request.body.email, request.body.subject, request.body.text),
-    response.redirect(303, '/thank-you')
+    sendMail(request.body.email, request.body.subject, request.body.text);
+    response.redirect(303, '/thank-you');
 });
 
 app.get('/thank-you', (request, response) => {
@@ -106,6 +131,11 @@ app.get('/thank-you', (request, response) => {
     )
 });
 
+
+/* 
+ADMIN LOGIN ROUTES
+*/
+
 app.get('/admin/login', (request, response) => {
     response.render('login')
 });
@@ -115,22 +145,17 @@ app.post('/login/password', passport.authenticate('local', {
     failureRedirect: '/admin/login'
 }));
 
-app.get('/admin/new-post', checkAuth, (request, response) => {
-    response.render('new-post')
-});
-
-app.post('/admin/save-post', checkAuth, (request, response) => {
-    // Save to MongoDB database
-});
-
-app.post('/admin/logout', function(req, res, next){
+app.post('/admin/logout', checkAuth, function(req, res, next){
     req.logout(function(err) {
       if (err) { return next(err); }
       res.redirect('/');
     });
 });
 
-app.use(express.static('public'));
+
+/*
+NODEMAILER
+*/ 
 
 const nodemailer = require("nodemailer");
 
@@ -156,6 +181,28 @@ async function sendMail(email, subject, text) {
       });
 }
 
+
+/* VISITOR AND WEATHER DATA ROUTES & FUNCTIONS */
+
+app.get('/', async (request, response) => {
+    let weatherData = await weather();
+    response.render('index',
+        {
+            title: 'Our Park',
+            visitors: visitors(),
+            currentTemperature: weatherData.current.temperature_2m,
+            todayHigh: weatherData.daily.temperature_2m_max[0],
+            todayLow: weatherData.daily.temperature_2m_min[0],
+            windDir: weatherData.current.wind_direction_10m,
+            clouds: weatherData.current.cloud_cover,
+            windspeed: weatherData.current.wind_speed_10m,
+            windgusts: weatherData.current.wind_gusts_10m,
+            precipitation: weatherData.current.precipitation,
+            weathercode: wmo[weatherData.current.weather_code]
+        }
+    )
+});
+
 function visitors() {   // Return count of visitors since 01.04.2025
     let start = new Date('2025-04-01');
     let end = new Date(new Date().toJSON().slice(0, 10));
@@ -175,7 +222,8 @@ function visitors() {   // Return count of visitors since 01.04.2025
     }
     return visitorCount;
 }
-var wmo = {
+
+let wmo = {
     0: "Clear sky",
     1: "Mainly clear, partly cloudy, and overcast",
     2: "Mainly clear, partly cloudy, and overcast",
@@ -210,6 +258,7 @@ async function weather() {
     .then(res => res.json())
     return weatherData;
 }
+
 
 const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
