@@ -110,14 +110,11 @@ app.get('/admin/new-post', checkAuth, (request, response) => {
 /* VALIDATE AND SANITATE INPUTS */
 
 const { body, validationResult } = require('express-validator');
-const { sanitizeBody } = require('express-validator');
-const { escape } = require('validator');
+const { escape } = require('validator'); 
 
 app.post('/admin/new-post',
     body('title').notEmpty().withMessage('Title is required'),
     body('content').notEmpty().withMessage('Content is required'),
-    sanitizeBody('title').escape(),
-    sanitizeBody('content').escape(),
     (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -340,6 +337,9 @@ app.get('/', async (req, res) => {
         res.status(500).send('Error retrieving data');
     }
 });
+
+
+
 
 
 function visitors() {   // Return count of visitors since 01.04.2025
