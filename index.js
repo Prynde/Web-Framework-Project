@@ -219,6 +219,7 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
 
     const cleanedFeedbacks = feedbacks.map(feedback => ({
         email: feedback.email,
+        status: feedback.status,
         content: feedback.content,
         // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
         contentReplace: feedback.content
@@ -246,6 +247,7 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
 
     const cleanedIssues = issues.map(issue => ({
         email: issue.email,
+        status: issue.status,
         content: issue.content,
         // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
         contentReplace: issue.content

@@ -1,4 +1,4 @@
-<h1>Write a new post</h1>
+<h1>View reported issues</h1>
 <br>
 {{> admin-navigation}}
 <br>
@@ -10,6 +10,7 @@
             {{#each issues}}
                 <li>
                     <h3>{{this.email}}</h3>
+                    <p>{{this.status}}</p>
                     <p>{{this.subject}}</p>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>
