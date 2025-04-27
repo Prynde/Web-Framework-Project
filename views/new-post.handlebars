@@ -5,16 +5,16 @@
 <div class="maincontent">
     <div class="formbox">
         <form action="/admin/save-post" method="POST">
-            <label for="text">New post:</label>
-            <textarea name="text" rows="10" cols="46"></textarea>
-            <br>
-            <br>
-            <input type="submit" value="Send">
-        </form>
-        <br>
-        <br>
-        <form action="/admin/logout" method="POST">
-            <input type="submit" value="Log out">
-        </form>
+            <div class="form-group">
+                <label for="title">Post Title:</label>
+                <input type="text" name="title" id="title" required aria-label="Post Title">
+            </div>
+
+            <div class="form-group">
+                <label for="content">Post Content:</label>
+                <textarea name="content" id="content" rows="10" cols="46" required aria-label="Post Content"></textarea>
+            </div>
+        <button type="submit">Submit Post</button>
+</form>
     </div>
 </div>
