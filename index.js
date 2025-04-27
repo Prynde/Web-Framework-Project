@@ -52,7 +52,7 @@ app.engine('handlebars', exphbs.engine({
 }));
 app.set('view engine', 'handlebars');
 
-/*
+
 // Should the connection be always open or opened and closed as needed inside a function?
 
 const dbURI = 'mongodb+srv://' + process.env.DBUSERNAME + ':' + process.env.DBPASSWORD + '@' + process.env.CLUSTER + '.c7byj1n.mongodb.net/' + process.env.DB + '?retryWrites=true&w=majority&appName=Hamk-projects';
@@ -64,7 +64,7 @@ mongoose.connect(dbURI)
 .catch((err) => {
     console.log(err);
 });
-*/
+
 
 
 // alternative option; run mongodb locally? 
@@ -72,12 +72,12 @@ mongoose.connect(dbURI)
 // -mirkka
 
 
-/* BLOG DATABASE CONNECTION */
+/* BLOG DATABASE CONNECTION 
 
 mongoose.connect('mongodb://localhost:27017/WebFrameworkProject')
 .then(() => console.log('Connected to MongoDB'))
 .catch((error) => console.error('MongoDB connection error:', error));
-
+*/
 
 /* 
 BLOG POST ROUTES
@@ -118,9 +118,28 @@ app.get('/feedback', (request, response) => {
     )
 });
 
+const Feedback = require('./models/feedback'); // import the feedback schema
+
 app.post('/send-feedback', (request, response) => {
-    sendMail(request.body.email, request.body.subject, request.body.text);
+    // Nodemailer
+    sendMail(request.body.email, request.body.subject, request.body.content);
+    /*
     response.redirect(303, '/thank-you');
+    */
+
+    // Save to MongoDB
+    const { email, subject, content } = request.body; 
+    const newFeedback = new Feedback({ email, subject, content });
+
+    newFeedback.save()
+        .then(() => {
+            response.redirect(303, '/thank-you'); // redirect to the thank you page after saving
+            console.log("Saved feedback"); // print successful feedback saves to console
+        })
+        .catch(err => {
+            console.log(err);
+            response.status(500).send('Error saving the feedback');
+        });
 });
 
 app.get('/thank-you', (request, response) => {
@@ -152,6 +171,63 @@ app.post('/admin/logout', checkAuth, function(req, res, next){
     });
 });
 
+/*
+ADMIN VIEW FEEDBACK & ISSUES ROUTES
+*/
+
+app.get('/admin/view-feedbacks', checkAuth, async function(request, response, next){
+
+    const feedbacks = await Feedback.find({"subject": "feedback"});
+
+    const cleanedFeedbacks = feedbacks.map(feedback => ({
+        email: feedback.email,
+        content: feedback.content,
+        // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
+        contentReplace: feedback.content
+            .split(/\r?\n\r?\n/) 
+            .map(p => `<p>${p}</p>`)
+            .join(''),
+        date: feedback.createdAt.toLocaleDateString('en-GB', {
+            weekday: 'long', 
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        }).replace(/\//g, '.') // replace slashes for dots in date formatting
+    }));
+
+    response.render('view-feedbacks',
+        {
+            feedbacks: cleanedFeedbacks
+        }
+    )    
+});
+
+app.get('/admin/view-issues', checkAuth, async function(request, response, next){
+
+    const issues = await Feedback.find({"subject": "issue"});
+
+    const cleanedIssues = issues.map(issue => ({
+        email: issue.email,
+        content: issue.content,
+        // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
+        contentReplace: issue.content
+            .split(/\r?\n\r?\n/) 
+            .map(p => `<p>${p}</p>`)
+            .join(''),
+        date: issue.createdAt.toLocaleDateString('en-GB', {
+            weekday: 'long', 
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        }).replace(/\//g, '.') // replace slashes for dots in date formatting
+    }));
+
+    response.render('view-issues',
+        {
+            issues: cleanedIssues
+        }
+    )    
+});
 
 /*
 NODEMAILER

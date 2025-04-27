@@ -1,0 +1,23 @@
+<h1>Write a new post</h1>
+<br>
+{{> admin-navigation}}
+<br>
+<div class="maincontent">
+    <div class="blogs">
+    <h2>Issues</h2>
+    {{#if issues.length}}
+        <ul>
+            {{#each issues}}
+                <li>
+                    <h3>{{this.email}}</h3>
+                    <p>{{this.subject}}</p>
+                    <p>{{this.date}}</p>
+                   <p>{{{this.contentReplace}}}</p>
+                </li>
+            {{/each}}
+        </ul>
+    {{else}}
+        <p>No issues available at the moment.</p>
+    {{/if}}
+</div>
+</div>
