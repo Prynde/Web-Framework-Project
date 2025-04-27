@@ -10,6 +10,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const mongoose = require('mongoose');
 
+
 app.use(express.static('public'));
 
 app.use(session({
@@ -85,6 +86,7 @@ BLOG POST ROUTES
 
 const Post = require('./models/post'); // import the post schema
 
+/*
 app.post('/admin/save-post', checkAuth, (req, res) => {
     const { title, content } = req.body; 
     const newPost = new Post({ title, content });
@@ -102,9 +104,45 @@ app.post('/admin/save-post', checkAuth, (req, res) => {
 
 app.get('/admin/new-post', checkAuth, (request, response) => {
     response.render('new-post')
-});
+}); 
+*/
 
+/* VALIDATE AND SANITATE INPUTS */
 
+const { body, validationResult } = require('express-validator');
+const { sanitizeBody } = require('express-validator');
+const { escape } = require('validator');
+
+app.post('/admin/new-post',
+    body('title').notEmpty().withMessage('Title is required'),
+    body('content').notEmpty().withMessage('Content is required'),
+    sanitizeBody('title').escape(),
+    sanitizeBody('content').escape(),
+    (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        // If no errors, proceed with saving the post
+        const { title, content } = req.body; 
+        const newPost = new Post({ title, content });
+
+        newPost.save()
+            .then(() => {
+                res.redirect('/admin/new-post'); // redirect to the new post page after saving
+                console.log("Saved post"); // print successful blog saves to console as there's no frontend view as of now
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).send('Error saving the post');
+            });
+    }
+);
+
+app.get('/admin/new-post', checkAuth, (request, response) => {
+    response.render('new-post')
+}
+);
 
 /* 
 FEEDBACK FORM ROUTES
