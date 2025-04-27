@@ -1,3 +1,13 @@
+<script type="text/javascript">
+function save(id) {
+    fetch('/admin/save-status', {
+        method: "POST",
+        body: JSON.stringify({id: document.getElementById('id' + id).value, status: document.getElementById('status' + id).value}),
+        headers: {"Content-Type":"application/json"}
+    })}
+    
+</script> 
+
 <h1>View received feedbacks</h1>
 <br>
 {{> admin-navigation}}
@@ -10,14 +20,12 @@
             {{#each feedbacks}}
                 <li>
                     <h3>{{this.email}}</h3>
-                    <form action="/save-changes" method="POST">
-                        <input type="hidden" id="feedback">
+                        <input type="hidden" id="id{{@index}}" value={{this.id}}>
                         <label for="status">Status:</label>
-                        <select id="status" name="status">
-                            <option value="New" {{#if this.status == "New"}}selected{{/if}}>New</option>
-                            <option value="Read" {{#if this.status == "Read"}}selected{{/if}}>Read</option>
+                        <select id="status{{@index}}" name="status" onchange="save({{@index}})">
+                            <option value="New" {{#if (eq this.status 'New')}}selected{{/if}}>New</option>
+                            <option value="Read" {{#if (eq this.status 'Read')}}selected{{/if}}>Read</option>
                         </select>
-                    </form>
                     <p>{{this.subject}}</p>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>

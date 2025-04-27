@@ -10,7 +10,6 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const mongoose = require('mongoose');
 
-
 app.use(express.static('public'));
 
 app.use(session({
@@ -49,7 +48,8 @@ const checkAuth = (request, response, next) => {
 }
 
 app.engine('handlebars', exphbs.engine({
-    defaultLayout: 'main'
+    defaultLayout: 'main',
+    helpers: require('./modules/eq')
 }));
 app.set('view engine', 'handlebars');
 
@@ -245,6 +245,7 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
     const feedbacks = await Feedback.find({"subject": "feedback"});
 
     const cleanedFeedbacks = feedbacks.map(feedback => ({
+        id: feedback.id,
         email: feedback.email,
         status: feedback.status,
         content: feedback.content,
@@ -273,6 +274,7 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
     const issues = await Feedback.find({"subject": "issue"});
 
     const cleanedIssues = issues.map(issue => ({
+        id: issue.id,
         email: issue.email,
         status: issue.status,
         content: issue.content,
@@ -295,6 +297,24 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
         }
     )    
 });
+
+app.post('/admin/save-status', checkAuth, (req, res) => {
+    console.log("Saved changes: " + req.body.status + " " + req.body.id);
+
+    // Save to MongoDB
+    const { id, status } = req.body;
+
+    Feedback.updateOne({ _id: id }, { $set: { status: status }})
+        .then(() => {
+            console.log("Saved status update"); // print successful feedback saves to console
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send('Error saving the feedback');
+        });
+        res.status(201);
+        res.end();
+})
 
 /*
 NODEMAILER
