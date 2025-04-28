@@ -9,6 +9,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 app.use(express.static('public'));
 
@@ -31,7 +32,7 @@ passport.deserializeUser((user, done) => {
 
 passport.use(
     new LocalStrategy((username, password, done) => {
-        if (username === process.env.ADMINUSERNAME && password === process.env.ADMINPASSWORD) {
+        if (username === process.env.ADMINUSERNAME && bcrypt.compareSync(password, process.env.ADMINPASSWORD)) {
             console.log('Logged in');
             return done(null, { id: 1, username: username });
         } else {
@@ -299,15 +300,10 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
 });
 
 app.post('/admin/save-status', checkAuth, (req, res) => {
-    console.log("Saved changes: " + req.body.status + " " + req.body.id);
-
     // Save to MongoDB
     const { id, status } = req.body;
 
     Feedback.updateOne({ _id: id }, { $set: { status: status }})
-        .then(() => {
-            console.log("Saved status update"); // print successful feedback saves to console
-        })
         .catch(err => {
             console.log(err);
             res.status(500).send('Error saving the feedback');
