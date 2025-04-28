@@ -230,7 +230,7 @@ app.post('/login/password', loginValidation, passport.authenticate('local', {
     failureRedirect: '/admin/login'
 }));
 
-app.post('/admin/logout', checkAuth, function(req, res, next){
+app.get('/admin/logout', checkAuth, function(req, res, next){
     req.logout(function(err) {
       if (err) { return next(err); }
       res.redirect('/');
