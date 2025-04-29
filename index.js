@@ -90,7 +90,6 @@ const Post = require('./models/post'); // import the post schema
 /* VALIDATE AND SANITATE INPUTS */
 
 const { body, validationResult } = require('express-validator');
-const { escape } = require('validator'); 
 
 app.post('/admin/save-post',
     body('title')
