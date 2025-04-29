@@ -49,6 +49,10 @@
                     <h3>{{this.title}}</h3>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>
+                   <p>
+                        Likes: <span id="likes-count-{{this._id}}">{{this.likes}}</span>
+                        <button onclick="likePost('{{this._id}}')" id="like-button-{{this._id}}">Like</button>
+                    </p>
                 </li>
             {{/each}}
         </ul>
