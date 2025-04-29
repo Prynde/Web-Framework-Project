@@ -49,31 +49,9 @@
                     <h3>{{this.title}}</h3>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>
-                   <p>
-                        Likes: <span id="likes-count-{{this._id}}">{{this.likes}}</span>
-                        <button onclick="likePost('{{this._id}}')">Like</button>
-                    </p>
                 </li>
             {{/each}}
         </ul>
-        <script>
-            function likePost(postId) {
-            fetch(`/posts/${postId}/like`, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Post liked successfully:', data);
-                document.getElementById(`likes-count-${postId}`).innerText = data.likes;
-            })
-            .catch(error => {
-                console.error('Error liking the post:', error);
-            });
-            }
-</script>
     {{else}}
         <p>No blog posts available at the moment.</p>
     {{/if}}
@@ -82,5 +60,4 @@
 </div>
 
 <!-- test -->
-
 
