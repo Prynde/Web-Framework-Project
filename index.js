@@ -142,11 +142,21 @@ FEEDBACK FORM ROUTES
 */
 
 app.get('/feedback', (request, response) => {
-    response.render('feedback',
-        {
-            title: 'Our Park'
-        }
-    )
+    if (request.isAuthenticated()) {
+        console.log('admin true');
+        response.render('feedback',
+            {
+                admin: 'admin',
+                title: 'Our Park'
+            }
+        )
+    } else {
+        response.render('feedback',
+            {
+                title: 'Our Park'
+            }
+        )
+    }
 });
 
 const Feedback = require('./models/feedback'); // import the feedback schema
@@ -197,11 +207,20 @@ app.post('/send-feedback', feedbackValidation, (request, response) => {
 });
 
 app.get('/thank-you', (request, response) => {
-    response.render('thank-you',
-        {
-            title: 'Our Park'
-        }
-    )
+    if (request.isAuthenticated()) {
+        response.render('thank-you',
+            {
+                admin: 'admin',
+                title: 'Our Park'
+            }
+        )
+    } else {
+        response.render('thank-you',
+            {
+                title: 'Our Park'
+            }
+        )
+    }
 });
 
 /* ADMIN LOGIN VALIDATION */
@@ -363,21 +382,38 @@ app.get('/', async (req, res) => {
                 day: 'numeric'
             }).replace(/\//g, '.') // replace slashes for dots in date formatting
         }));
-
-        res.render('index', {
-            title: 'Our Park',
-            visitors: visitors(),
-            currentTemperature: weatherData.current.temperature_2m,
-            todayHigh: weatherData.daily.temperature_2m_max[0],
-            todayLow: weatherData.daily.temperature_2m_min[0],
-            windDir: weatherData.current.wind_direction_10m,
-            clouds: weatherData.current.cloud_cover,
-            windspeed: weatherData.current.wind_speed_10m,
-            windgusts: weatherData.current.wind_gusts_10m,
-            precipitation: weatherData.current.precipitation,
-            weathercode: wmo[weatherData.current.weather_code],
-            posts: cleanedPosts
-        });
+        if (req.isAuthenticated()) {
+            res.render('index', {
+                admin: 'admin',
+                title: 'Our Park',
+                visitors: visitors(),
+                currentTemperature: weatherData.current.temperature_2m,
+                todayHigh: weatherData.daily.temperature_2m_max[0],
+                todayLow: weatherData.daily.temperature_2m_min[0],
+                windDir: weatherData.current.wind_direction_10m,
+                clouds: weatherData.current.cloud_cover,
+                windspeed: weatherData.current.wind_speed_10m,
+                windgusts: weatherData.current.wind_gusts_10m,
+                precipitation: weatherData.current.precipitation,
+                weathercode: wmo[weatherData.current.weather_code],
+                posts: cleanedPosts
+            });
+        } else {
+            res.render('index', {
+                title: 'Our Park',
+                visitors: visitors(),
+                currentTemperature: weatherData.current.temperature_2m,
+                todayHigh: weatherData.daily.temperature_2m_max[0],
+                todayLow: weatherData.daily.temperature_2m_min[0],
+                windDir: weatherData.current.wind_direction_10m,
+                clouds: weatherData.current.cloud_cover,
+                windspeed: weatherData.current.wind_speed_10m,
+                windgusts: weatherData.current.wind_gusts_10m,
+                precipitation: weatherData.current.precipitation,
+                weathercode: wmo[weatherData.current.weather_code],
+                posts: cleanedPosts
+            });
+        }
     } catch (err) {
         console.error(err);
         res.status(500).send('Error retrieving data');
