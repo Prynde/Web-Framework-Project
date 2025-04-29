@@ -1,11 +1,23 @@
 <script type="text/javascript">
-function save(id) {
-    fetch('/admin/save-status', {
-        method: "POST",
-        body: JSON.stringify({id: document.getElementById('id' + id).value, status: document.getElementById('status' + id).value}),
-        headers: {"Content-Type":"application/json"}
-    })}
-    
+    async function save(id, oldvalue) {
+        var status;
+        try {
+            const result = await fetch('/admin/save-status', {
+                method: "POST",
+                body: JSON.stringify({id: document.getElementById('id' + id).value, status: document.getElementById('status' + id).value}),
+                headers: {"Content-Type":"application/json"}
+            })
+            status = result.status;
+        }
+        catch (e) {
+        }
+        if (status === 201) {
+            document.getElementById('result' + id).innerHTML = "Status changed: " + oldvalue + " => " + document.getElementById('status' + id).value;
+        } else {
+            document.getElementById('result' + id).innerHTML = "Status change failed!";
+        }
+        document.getElementById('status' + id).blur();
+    }
 </script> 
 
 <h1>View received feedbacks</h1>
@@ -22,10 +34,11 @@ function save(id) {
                     <h3>{{this.email}}</h3>
                         <input type="hidden" id="id{{@index}}" value={{this.id}}>
                         <label for="status">Status:</label>
-                        <select id="status{{@index}}" name="status" onchange="save({{@index}})">
+                        <select id="status{{@index}}" name="status" onfocus="oldvalue = this.value" onchange="save({{@index}}, oldvalue)">
                             <option value="New" {{#if (eq this.status 'New')}}selected{{/if}}>New</option>
                             <option value="Read" {{#if (eq this.status 'Read')}}selected{{/if}}>Read</option>
                         </select>
+                        <span id="result{{@index}}" class="result"></span>
                     <p>{{this.subject}}</p>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>

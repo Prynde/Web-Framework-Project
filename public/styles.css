@@ -23,6 +23,10 @@ h1 {
     margin: 10px;
 }
 
+span.result {
+	margin-left: 15px;
+}
+
 form {
 	display: block;
 	width: 100%;
