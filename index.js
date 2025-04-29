@@ -416,7 +416,7 @@ app.get('/', async (req, res) => {
                 windspeed: weatherData.current.wind_speed_10m,
                 windgusts: weatherData.current.wind_gusts_10m,
                 precipitation: weatherData.current.precipitation,
-                weathercode: wmo[weatherData.current.weather_code],
+                weathercode: wmo[weatherData.current.weather_code][weatherData.current.is_day]["description"],
                 posts: cleanedPosts
             });
         } else {
