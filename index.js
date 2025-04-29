@@ -10,6 +10,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
 
 app.use(express.static('public'));
 
@@ -141,11 +142,21 @@ FEEDBACK FORM ROUTES
 */
 
 app.get('/feedback', (request, response) => {
-    response.render('feedback',
-        {
-            title: 'Our Park'
-        }
-    )
+    if (request.isAuthenticated()) {
+        console.log('admin true');
+        response.render('feedback',
+            {
+                admin: 'admin',
+                title: 'Our Park'
+            }
+        )
+    } else {
+        response.render('feedback',
+            {
+                title: 'Our Park'
+            }
+        )
+    }
 });
 
 const Feedback = require('./models/feedback'); // import the feedback schema
@@ -196,11 +207,20 @@ app.post('/send-feedback', feedbackValidation, (request, response) => {
 });
 
 app.get('/thank-you', (request, response) => {
-    response.render('thank-you',
-        {
-            title: 'Our Park'
-        }
-    )
+    if (request.isAuthenticated()) {
+        response.render('thank-you',
+            {
+                admin: 'admin',
+                title: 'Our Park'
+            }
+        )
+    } else {
+        response.render('thank-you',
+            {
+                title: 'Our Park'
+            }
+        )
+    }
 });
 
 /* ADMIN LOGIN VALIDATION */
@@ -229,7 +249,7 @@ app.post('/login/password', loginValidation, passport.authenticate('local', {
     failureRedirect: '/admin/login'
 }));
 
-app.post('/admin/logout', checkAuth, function(req, res, next){
+app.get('/admin/logout', checkAuth, function(req, res, next){
     req.logout(function(err) {
       if (err) { return next(err); }
       res.redirect('/');
@@ -363,20 +383,38 @@ app.get('/', async (req, res) => {
             }).replace(/\//g, '.') // replace slashes for dots in date formatting
         }));
 
-        res.render('index', {
-            title: 'Our Park',
-            visitors: visitors(),
-            currentTemperature: weatherData.current.temperature_2m,
-            todayHigh: weatherData.daily.temperature_2m_max[0],
-            todayLow: weatherData.daily.temperature_2m_min[0],
-            windDir: weatherData.current.wind_direction_10m,
-            clouds: weatherData.current.cloud_cover,
-            windspeed: weatherData.current.wind_speed_10m,
-            windgusts: weatherData.current.wind_gusts_10m,
-            precipitation: weatherData.current.precipitation,
-            weathercode: wmo[weatherData.current.weather_code],
-            posts: cleanedPosts
-        });
+        if (req.isAuthenticated()) {
+            res.render('index', {
+                admin: 'admin',
+                title: 'Our Park',
+                visitors: visitors(),
+                currentTemperature: weatherData.current.temperature_2m,
+                todayHigh: weatherData.daily.temperature_2m_max[0],
+                todayLow: weatherData.daily.temperature_2m_min[0],
+                windDir: weatherData.current.wind_direction_10m,
+                clouds: weatherData.current.cloud_cover,
+                windspeed: weatherData.current.wind_speed_10m,
+                windgusts: weatherData.current.wind_gusts_10m,
+                precipitation: weatherData.current.precipitation,
+                weathercode: wmo[weatherData.current.weather_code],
+                posts: cleanedPosts
+            });
+        } else {
+            res.render('index', {
+                title: 'Our Park',
+                visitors: visitors(),
+                currentTemperature: weatherData.current.temperature_2m,
+                todayHigh: weatherData.daily.temperature_2m_max[0],
+                todayLow: weatherData.daily.temperature_2m_min[0],
+                windDir: weatherData.current.wind_direction_10m,
+                clouds: weatherData.current.cloud_cover,
+                windspeed: weatherData.current.wind_speed_10m,
+                windgusts: weatherData.current.wind_gusts_10m,
+                precipitation: weatherData.current.precipitation,
+                weathercode: wmo[weatherData.current.weather_code][weatherData.current.is_day]["description"],
+                posts: cleanedPosts
+            });
+        }
     } catch (err) {
         console.error(err);
         res.status(500).send('Error retrieving data');
@@ -407,38 +445,10 @@ function visitors() {   // Return count of visitors since 01.04.2025
     return visitorCount;
 }
 
-let wmo = {
-    0: "Clear sky",
-    1: "Mainly clear, partly cloudy, and overcast",
-    2: "Mainly clear, partly cloudy, and overcast",
-    3: "Mainly clear, partly cloudy, and overcast",
-    45: "Fog and depositing rime fog",
-    48: "Fog and depositing rime fog",
-    51: "Drizzle: Light, moderate, and dense intensity",
-    53: "Drizzle: Light, moderate, and dense intensity",
-    55:	"Drizzle: Light, moderate, and dense intensity",
-    56: "Freezing Drizzle: Light and dense intensity",
-    57:	"Freezing Drizzle: Light and dense intensity",
-    61: "Rain: Slight, moderate and heavy intensity",
-    63: "Rain: Slight, moderate and heavy intensity",
-    65:	"Rain: Slight, moderate and heavy intensity",
-    66: "Freezing Rain: Light and heavy intensity",
-    67:	"Freezing Rain: Light and heavy intensity",
-    71: "Snow fall: Slight, moderate, and heavy intensity",
-    73: "Snow fall: Slight, moderate, and heavy intensity",
-    75:	"Snow fall: Slight, moderate, and heavy intensity",
-    77:	"Snow grains",
-    80: "Rain showers: Slight, moderate, and violent",
-    81: "Rain showers: Slight, moderate, and violent",
-    82:	"Rain showers: Slight, moderate, and violent",
-    85: "Snow showers slight and heavy",
-    86:	"Snow showers slight and heavy",
-    95:	"Thunderstorm: Slight or moderate",
-    96: "Thunderstorm with slight and heavy hail",
-    99:	"Thunderstorm with slight and heavy hail"
-};
+let wmo = JSON.parse(fs.readFileSync('wmo.json', 'utf-8'));
+
 async function weather() {
-    let weatherData = await fetch('https://api.open-meteo.com/v1/forecast?latitude=60.9167&longitude=24.6333&daily=temperature_2m_max,temperature_2m_min&current=temperature_2m,wind_direction_10m,cloud_cover,wind_speed_10m,wind_gusts_10m,precipitation,weather_code&timezone=auto')
+    let weatherData = await fetch('https://api.open-meteo.com/v1/forecast?latitude=60.9167&longitude=24.6333&daily=temperature_2m_max,temperature_2m_min&current=is_day,temperature_2m,wind_direction_10m,cloud_cover,wind_speed_10m,wind_gusts_10m,precipitation,weather_code&timezone=auto')
     .then(res => res.json())
     return weatherData;
 }

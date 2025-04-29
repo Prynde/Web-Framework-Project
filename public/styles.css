@@ -290,6 +290,10 @@ button:active {
     gap: 15px;
 }
 
+.right-links {
+	gap: 15px;
+}
+
 /* login link */ 
 .login-link {
     margin-left: auto; /* pushes the login link to the right */

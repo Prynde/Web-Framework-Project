@@ -1,6 +1,6 @@
 <h1>Welcome to the homepage of {{title}}</h1>
 <br>
-{{> navigation}}
+{{#if (eq this.admin "admin")}}{{> admin-navigation}}{{else}}{{> navigation}}{{/if}}
 <br>
 <div class="maincontent">
     <div class="formbox">
