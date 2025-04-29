@@ -265,7 +265,7 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
 
     const feedbacks = await Feedback.find({"subject": "feedback"});
 
-    const cleanedFeedbacks = feedbacks.map(feedback => ({
+    const cleanedFeedbacks = feedbacks.toReversed().map(feedback => ({
         id: feedback.id,
         email: feedback.email,
         status: feedback.status,
@@ -294,7 +294,7 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
 
     const issues = await Feedback.find({"subject": "issue"});
 
-    const cleanedIssues = issues.map(issue => ({
+    const cleanedIssues = issues.toReversed().map(issue => ({
         id: issue.id,
         email: issue.email,
         status: issue.status,
@@ -368,7 +368,7 @@ app.get('/', async (req, res) => {
         let weatherData = await weather();
         const posts = await Post.find();
 
-        const cleanedPosts = posts.map(post => ({
+        const cleanedPosts = posts.toReversed().map(post => ({
             title: post.title,
             content: post.content,
             // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
