@@ -46,7 +46,7 @@ const checkAuth = (request, response, next) => {
     if (request.isAuthenticated()) { 
         return next()
     }
-    response.redirect('/admin/login')
+    response.redirect('/admin/admin-login')
 }
 
 app.engine('handlebars', exphbs.engine({
@@ -133,7 +133,7 @@ body('content')
 );
 
 app.get('/admin/new-post', checkAuth, (request, response) => {
-    response.render('new-post')
+    response.render('admin-new-post')
 }
 );
 /* LIKES FOR BLOGPOSTS */
@@ -241,7 +241,7 @@ ADMIN LOGIN ROUTES
 */
 
 app.get('/admin/login', (request, response) => {
-    response.render('login')
+    response.render('admin-login')
 });
 
 app.post('/login/password', loginValidation, passport.authenticate('local', {
@@ -282,7 +282,7 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
         }).replace(/\//g, '.') // replace slashes for dots in date formatting
     }));
 
-    response.render('view-feedbacks',
+    response.render('admin-view-feedbacks',
         {
             feedbacks: cleanedFeedbacks
         }
@@ -311,7 +311,7 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
         }).replace(/\//g, '.') // replace slashes for dots in date formatting
     }));
 
-    response.render('view-issues',
+    response.render('admin-view-issues',
         {
             issues: cleanedIssues
         }
