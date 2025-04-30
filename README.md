@@ -4,7 +4,7 @@ This is a website for a park containing:
 Blog for news (stored in MongoDB, can be retrieved by API also)
 Weather information (download by API from Open Meteo)
 Visitor counter
-Form for feedback/issue reporting (nodeMailer/MongoDB) 
+Form for feedback/issue reporting (nodeMailer/MongoDB, express-validator) 
 Admin pages (bcrypt & passport for session validation) =>
     -Post new blog posts
     -View received feedback and react to them

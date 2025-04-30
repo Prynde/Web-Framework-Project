@@ -199,7 +199,6 @@ app.post('/send-feedback', feedbackValidation, (request, response) => {
     newFeedback.save()
         .then(() => {
             response.redirect(303, '/thank-you'); // redirect to the thank you page after saving
-            console.log("Saved feedback"); // print successful feedback saves to console
         })
         .catch(err => {
             console.log(err);
