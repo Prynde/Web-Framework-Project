@@ -329,6 +329,12 @@ io.on('connection', function(socket) {
     });
     socket.on('admin-change-event', function(id, value, item, callback) {
         let obj = {};
+        if (item == 'subject') {
+            Feedback.updateOne({ _id: id }, { $set: { status: 'New' }}) 
+                .catch(err => {
+                    console.log(err);
+                });       
+        }
         obj[item] = value;
         Feedback.updateOne({ _id: id }, { $set: obj})
             .catch(err => {

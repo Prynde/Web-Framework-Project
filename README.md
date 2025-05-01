@@ -9,4 +9,5 @@ Admin pages (bcrypt & passport for session validation) =>
     -Post new blog posts
     -View received feedback and react to them
     -view received issues and react to them
+Socket.io for server-client communication to update message-data @ DB (Currently: status, subject, to be expanded)
 more funtionalities to come.

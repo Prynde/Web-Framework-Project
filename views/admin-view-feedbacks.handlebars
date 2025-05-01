@@ -80,6 +80,10 @@
                 console.log("failed :" + response.status);
                 document.getElementById(item + 'result' + index).innerHTML = "Change failed!";
             }
+        if (item = "subject") {
+            document.getElementById('subject' + index).disabled = true;
+            document.getElementById('status' + index).disabled = true;
+        }
         });
     }
 </script>

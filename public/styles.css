@@ -26,9 +26,6 @@ h1 {
 span.result {
 	margin-left: 15px;
 	display: inline-block;
-}
-
-span.result:first-letter {
 	text-transform: capitalize;
 }
 
