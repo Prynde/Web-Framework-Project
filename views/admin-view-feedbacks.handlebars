@@ -1,3 +1,4 @@
+<!--
 <script type="text/javascript">
     async function save(id, oldvalue) {
         var status;
@@ -12,14 +13,14 @@
         catch (e) {
         }
         if (status === 201) {
-            document.getElementById('result' + id).innerHTML = "Status changed: " + oldvalue + " => " + document.getElementById('status' + id).value;
+            document.getElementById('statusresult' + id).innerHTML = "Status changed: " + oldvalue + " => " + document.getElementById('status' + id).value;
         } else {
-            document.getElementById('result' + id).innerHTML = "Status change failed!";
+            document.getElementById('statusresult' + id).innerHTML = "Status change failed!";
         }
         document.getElementById('status' + id).blur();
     }
 </script> 
-
+-->
 <h1>View received feedbacks</h1>
 <br>
 {{> admin-navigation}}
@@ -33,12 +34,19 @@
                 <li>
                     <h3>{{this.email}}</h3>
                         <input type="hidden" id="id{{@index}}" value={{this.id}}>
+                        <label for="subject">Subject:</label>
+                        <select id="subject{{@index}}" name="subject" onfocus="oldvalue = this.value" onchange="changed({{@index}}, oldvalue, 'subject')">
+                            <option value="feedback" {{#if (eq this.subject 'feedback')}}selected{{/if}}>Feedback</option>
+                            <option value="issue" {{#if (eq this.subject 'issue')}}selected{{/if}}>Issue</option>
+                        </select>
+                        <span id="subjectresult{{@index}}" class="result"></span>
+                        <br>
                         <label for="status">Status:</label>
-                        <select id="status{{@index}}" name="status" onfocus="oldvalue = this.value" onchange="save({{@index}}, oldvalue)">
+                        <select id="status{{@index}}" name="status" onfocus="oldvalue = this.value" onchange="changed({{@index}}, oldvalue, 'status')">
                             <option value="New" {{#if (eq this.status 'New')}}selected{{/if}}>New</option>
                             <option value="Read" {{#if (eq this.status 'Read')}}selected{{/if}}>Read</option>
                         </select>
-                        <span id="result{{@index}}" class="result"></span>
+                        <span id="statusresult{{@index}}" class="result"></span>
                     <p>{{this.subject}}</p>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>
@@ -50,3 +58,28 @@
     {{/if}}
 </div>
 </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+    var socket = io();
+    var index;
+    var oldvalue;
+    var item;
+
+    function changed (a, b, c) {
+        index = a;
+        oldvalue = b;
+        item = c;
+        let id =  document.getElementById('id' + index).value;
+        socket.emit('admin-change-event', id, document.getElementById(item + index).value, item, (response) => {
+            if (response.status == 'ok') {
+                console.log('Changed:' + item);
+                document.getElementById(item + 'result' + index).innerHTML = item + " changed: " + oldvalue + " => " + document.getElementById(item + index).value;
+                document.getElementById(item + index).blur();
+            } else {
+                console.log("failed :" + response.status);
+                document.getElementById(item + 'result' + index).innerHTML = "Change failed!";
+            }
+        });
+    }
+</script>

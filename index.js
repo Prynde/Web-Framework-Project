@@ -11,6 +11,8 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const httpServer = require("http").createServer(app);
+var io = require('socket.io')(httpServer);
 
 app.use(express.static('public'));
 
@@ -46,7 +48,7 @@ const checkAuth = (request, response, next) => {
     if (request.isAuthenticated()) { 
         return next()
     }
-    response.redirect('/admin/admin-login')
+    response.redirect('/admin/login')
 }
 
 app.engine('handlebars', exphbs.engine({
@@ -267,6 +269,7 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
     const cleanedFeedbacks = feedbacks.toReversed().map(feedback => ({
         id: feedback.id,
         email: feedback.email,
+        subject: feedback.subject,
         status: feedback.status,
         content: feedback.content,
         // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
@@ -296,6 +299,7 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
     const cleanedIssues = issues.toReversed().map(issue => ({
         id: issue.id,
         email: issue.email,
+        subject: issue.subject,
         status: issue.status,
         content: issue.content,
         // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
@@ -318,6 +322,26 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
     )    
 });
 
+io.on('connection', function(socket) {
+    console.log("a user has connected!");
+    socket.on('disconnect', function() {
+        console.log('user disconnected');
+    });
+    socket.on('admin-change-event', function(id, value, item, callback) {
+        let obj = {};
+        obj[item] = value;
+        Feedback.updateOne({ _id: id }, { $set: obj})
+            .catch(err => {
+                console.log(err);
+                callback({status: "error"});
+            });
+        callback({status: "ok"});
+    });
+});
+
+/*
+// Now using socket.io instead
+
 app.post('/admin/save-status', checkAuth, (req, res) => {
     // Save to MongoDB
     const { id, status } = req.body;
@@ -327,9 +351,10 @@ app.post('/admin/save-status', checkAuth, (req, res) => {
             console.log(err);
             res.status(500).send('Error saving the feedback');
         });
-        res.status(201);
-        res.end();
+    res.status(201);
+    res.end();
 })
+*/
 
 /*
 NODEMAILER
@@ -455,4 +480,4 @@ async function weather() {
 
 
 const PORT = process.env.PORT || 3300;
-app.listen(PORT, () => console.log(`App listening on port ${PORT}`));
+httpServer.listen(PORT, () => console.log(`App listening on port ${PORT}`));
