@@ -140,6 +140,31 @@ app.get('/admin/new-post', checkAuth, (request, response) => {
 );
 /* LIKES FOR BLOGPOSTS */
 
+
+app.post('/admin/like-post', checkAuth, async (req, res) => {
+    const { id } = req.params;
+    console.log("POST like hit:", id); // console log
+    try {
+      const post = await Post.findById(id);
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+  
+      post.likes += 1;  // increment likes
+      await post.save(); // save back to MongoDB
+  
+      res.status(200).json({ likes: post.likes }); // send back new like count
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error liking the post' });
+    }
+  });
+app.get('/admin/like-post', checkAuth, (req, res) => {
+    response.render('admin-like-post')
+}
+);
+
+
 /* 
 FEEDBACK FORM ROUTES
 */
