@@ -1,0 +1,11 @@
+<h1>Welcome to the homepage of {{title}}</h1>
+<br>
+{{#if (eq this.admin "admin")}}{{> admin-navigation}}{{else}}{{> navigation}}{{/if}}
+<br>
+<div class="maincontent">
+    <div id="row1">
+        <div class="infobox">
+            <p>Post saved succesfully.</p>
+        </div>
+    </div>
+</div>

@@ -13,8 +13,11 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const httpServer = require("http").createServer(app);
 var io = require('socket.io')(httpServer);
+const multer = require('multer');
+const path = require ('path');
 
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
 app.use(session({
   secret: 'You will never guess it',
@@ -76,70 +79,88 @@ mongoose.connect(dbURI)
 // this should work as of now if you run a mongodb server locally & create a database called WebFrameworkProject
 // -mirkka
 
-
 /* BLOG DATABASE CONNECTION 
-
 mongoose.connect('mongodb://localhost:27017/WebFrameworkProject')
 .then(() => console.log('Connected to MongoDB'))
 .catch((error) => console.error('MongoDB connection error:', error));
 */
 
+
 /* 
 BLOG POST ROUTES
 */
 
+// use multer to add images to blog posts
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // uploads/ folder in root
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ storage: storage });
 const Post = require('./models/post'); // import the post schema
-
-/* VALIDATE AND SANITATE INPUTS */
-
 const { body, validationResult } = require('express-validator');
 
-app.post('/admin/save-post',
-    body('title')
+app.post('/admin/save-post', 
+  upload.single('image'),
+  body('title')
     .trim()
     .escape()
     .notEmpty()
     .withMessage('Title is required')
     .isLength({ max: 200 })
     .withMessage('Title must be under 200 characters'), 
-    // Trim and escape the title input, escape prevents script injections
 
-body('content')
+  body('content')
     .trim()
     .escape()
     .notEmpty()
     .withMessage('Content is required')
     .isLength({ max: 5000 })
     .withMessage('Content must be under 5000 characters'), 
-    // Trim and escape the content input, same stuff as above
 
-    (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-        // If no errors, proceed with saving the post
-        const { title, content } = req.body; 
-        const newPost = new Post({ title, content });
-
-        newPost.save()
-            .then(() => {
-                res.redirect('/admin/new-post'); // redirect to the new post page after saving
-                console.log("Saved post"); // print successful blog saves to console as there's no frontend view as of now
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(500).send('Error saving the post');
-            });
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
+
+    const { title, content } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const post = new Post({
+      title,
+      content,
+      imageUrl
+    });
+
+    try {
+      await post.save();
+      res.redirect('/admin/post-saved'); // Redirect after saving the post
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error saving post');
+    }
+
+    console.log('Uploaded file:', req.file);
+  }
 );
 
+  
 app.get('/admin/new-post', checkAuth, (request, response) => {
     response.render('admin-new-post')
-}
-);
-/* LIKES FOR BLOGPOSTS */
+});
 
+app.get('/admin/post-saved', checkAuth, (request, response) => {
+    response.render('admin-post-saved')
+});
+
+
+/* LIKES FOR BLOGPOSTS */
 
 app.post('/admin/like-post', checkAuth, async (req, res) => {
     const { id } = req.params;
@@ -189,8 +210,7 @@ app.get('/feedback', (request, response) => {
 
 const Feedback = require('./models/feedback'); // import the feedback schema
 
-// VALIDATE AND SANITATE INPUTS FOR FEEDBACK FORM
-
+// validate and sanitate feedback form inputs
 const feedbackValidation = [
     body('email')
         .isEmail()
@@ -205,12 +225,13 @@ const feedbackValidation = [
         .withMessage('Subject must be feedback or issue'),
     body('content')
         .trim()
-        .escape()
         .notEmpty()
         .withMessage('Content is required')
-        .isLength({ max: 2000 })
-        .withMessage('Content must be under 2000 characters')
+        .isLength({ max: 5000 })
+        .withMessage('Content must be under 5000 characters')
 ];
+
+// saving the feedback
 
 app.post('/send-feedback', feedbackValidation, (request, response) => {
     // Nodemailer
@@ -250,7 +271,12 @@ app.get('/thank-you', (request, response) => {
     }
 });
 
-/* ADMIN LOGIN VALIDATION */
+
+/* 
+ADMIN LOGIN ROUTES
+*/
+
+// login validation
 
 const loginValidation = [
     body('username')
@@ -263,9 +289,6 @@ const loginValidation = [
         .notEmpty()
         .withMessage('Password is required')
 ];
-/* 
-ADMIN LOGIN ROUTES
-*/
 
 app.get('/admin/login', (request, response) => {
     response.render('admin-login')
@@ -416,7 +439,7 @@ async function sendMail(email, subject, text) {
 }
 
 
-/* VISITOR, BLOG POSTS AND WEATHER DATA */
+/* VISITOR, BLOG POSTS & WEATHER FOR FRONT PAGE */
 
 app.get('/', async (req, res) => {
     try {
@@ -426,6 +449,7 @@ app.get('/', async (req, res) => {
         const cleanedPosts = posts.toReversed().map(post => ({
             title: post.title,
             content: post.content,
+            imageUrl: post.imageUrl,
             // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
             contentReplace: post.content
                 .split(/\r?\n\r?\n/) 
@@ -476,9 +500,6 @@ app.get('/', async (req, res) => {
         res.status(500).send('Error retrieving data');
     }
 });
-
-
-
 
 
 function visitors() {   // Return count of visitors since 01.04.2025
