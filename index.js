@@ -371,12 +371,14 @@ const loginValidation = [
 ];
 
 app.get('/admin/login', (request, response) => {
-    response.render('admin-login')
+    response.render('admin-login', { title: "Admin Login", errors: request.session.messages })
+    request.session.messages = undefined
 });
 
 app.post('/login/password', loginValidation, passport.authenticate('local', {
     successRedirect: '/admin/new-post',
-    failureRedirect: '/admin/login'
+    failureRedirect: '/admin/login',
+    failureMessage: true
 }));
 
 app.get('/admin/logout', checkAuth, function(req, res, next){

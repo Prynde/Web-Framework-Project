@@ -6,6 +6,7 @@
     <div class="formbox">
         <form action="/login/password" method="post">
             <div class="form-group">
+                <p id="Loginerror" style="text-align: center">{{this.errors}}</p>
                 <label for="username">Username:</label>
                 <input id="username" name="username" type="text" autocomplete="username" placeholder="Enter your username" required>
             </div>
