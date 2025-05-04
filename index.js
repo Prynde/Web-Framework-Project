@@ -162,6 +162,43 @@ app.get('/admin/post-saved', checkAuth, (request, response) => {
 });
 
 
+// route for single post view
+
+app.get('/post/:id', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+
+        const cleanedPost = {
+            title: post.title,
+            content: post.content,
+            imageUrl: post.imageUrl,
+            contentReplace: post.content
+                .split(/\r?\n\r?\n/)
+                .map(p => `<p>${p}</p>`)
+                .join(''),
+            date: post.createdAt.toLocaleDateString('en-GB', {
+                weekday: 'long', 
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            }).replace(/\//g, '.')
+        };
+
+        res.render('single-post', {
+            title: cleanedPost.title,
+            post: cleanedPost
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving post');
+    }
+});
+
+
 /* LIKES FOR BLOGPOSTS */
 
 app.post('/admin/like-post', checkAuth, async (req, res) => {

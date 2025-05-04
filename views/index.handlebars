@@ -46,7 +46,7 @@
         <ul>
             {{#each posts}}
                 <li>
-                    <h3>{{this.title}}</h3>
+                    <h3><a href="/post/{{this._id}}">{{this.title}}</a></h3>
                     <p>{{this.date}}</p>
                 {{#if this.imageUrl}}
                     <img src="{{this.imageUrl}}" alt="Blog image" style="max-width: 100%; height: auto;">
