@@ -125,19 +125,28 @@ app.post('/admin/save-post',
     .isLength({ max: 5000 })
     .withMessage('Content must be under 5000 characters'), 
 
+    body('imageDesc')
+    .trim()
+    .escape()
+    .notEmpty()
+    .withMessage('Image description is required')
+    .isLength({ max: 100 })
+    .withMessage('Image description must be under 100 characters'), 
+
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { title, content } = req.body;
+    const { title, content, imageDesc } = req.body;
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     const post = new Post({
       title,
       content,
-      imageUrl
+      imageUrl,
+      imageDesc
     });
 
     try {
@@ -154,11 +163,21 @@ app.post('/admin/save-post',
 
   
 app.get('/admin/new-post', checkAuth, (request, response) => {
-    response.render('admin-new-post')
+    response.render('admin-new-post',
+        {
+            admin: 'admin',
+            title: 'Admin: New post'
+        }
+    )
 });
 
 app.get('/admin/post-saved', checkAuth, (request, response) => {
-    response.render('admin-post-saved')
+    response.render('admin-post-saved',
+        {
+            admin: 'admin',
+            title: 'Admin: New post saved'
+        }
+    )
 });
 
 
@@ -419,6 +438,7 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
 
     response.render('admin-view-feedbacks',
         {
+            title: 'Admin: View feedbacks',
             feedbacks: cleanedFeedbacks
         }
     )    
@@ -449,6 +469,7 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
 
     response.render('admin-view-issues',
         {
+            title: 'Admin: View issues',
             issues: cleanedIssues
         }
     )    
@@ -581,6 +602,7 @@ app.get('/', async (req, res) => {
             title: post.title,
             content: post.content,
             imageUrl: post.imageUrl,
+            imageDesc: post.imageDesc,
             // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
             contentReplace: post.content
                 .split(/\r?\n\r?\n/) 
