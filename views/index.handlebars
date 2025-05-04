@@ -76,7 +76,8 @@
                 <p>Likes: <span id="likes-count-{{this._id}}">{{this.likes}}</span>
                     <button onclick="likePost('{{this._id}}')">Like</button>
                 </p>
-                <p><button onclick="deletePost('{{this.id}}')">Delete</button></p>
+                <br>
+                {{#if (eq ../this.admin "admin")}}<p><button onclick="deletePost('{{this.id}}')">Delete</button></p>{{/if}}
                 </li>
             {{/each}}
         </ul>
