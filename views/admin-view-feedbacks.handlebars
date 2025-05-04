@@ -27,36 +27,37 @@
 <br>
 <div class="maincontent">
     <div class="blogs">
-    <h2>Feedbacks</h2>
-    {{#if feedbacks.length}}
-        <ul>
-            {{#each feedbacks}}
-                <li>
-                    <h3>{{this.email}}</h3>
-                        <input type="hidden" id="id{{@index}}" value={{this.id}}>
-                        <label for="subject">Subject:</label>
-                        <select id="subject{{@index}}" name="subject" onfocus="oldvalue = this.value" onchange="changed({{@index}}, oldvalue, 'subject')">
-                            <option value="feedback" {{#if (eq this.subject 'feedback')}}selected{{/if}}>Feedback</option>
-                            <option value="issue" {{#if (eq this.subject 'issue')}}selected{{/if}}>Issue</option>
-                        </select>
-                        <span id="subjectresult{{@index}}" class="result"></span>
-                        <br>
-                        <label for="status">Status:</label>
-                        <select id="status{{@index}}" name="status" onfocus="oldvalue = this.value" onchange="changed({{@index}}, oldvalue, 'status')">
-                            <option value="New" {{#if (eq this.status 'New')}}selected{{/if}}>New</option>
-                            <option value="Read" {{#if (eq this.status 'Read')}}selected{{/if}}>Read</option>
-                        </select>
-                        <span id="statusresult{{@index}}" class="result"></span>
-                    <p>{{this.subject}}</p>
-                    <p>{{this.date}}</p>
-                   <p>{{{this.contentReplace}}}</p>
-                </li>
-            {{/each}}
-        </ul>
-    {{else}}
-        <p>No feedbacks available at the moment.</p>
-    {{/if}}
-</div>
+        <h2>Feedbacks</h2>
+        {{#if feedbacks.length}}
+            <ul>
+                {{#each feedbacks}}
+                    <li>
+                        <h3>{{this.email}}</h3>
+                            <input type="hidden" id="id{{@index}}" value={{this.id}}>
+                            <label for="subject">Subject:</label>
+                            <select id="subject{{@index}}" name="subject" onfocus="oldvalue = this.value" onchange="changed({{@index}}, oldvalue, 'subject')">
+                                <option value="feedback" selected>Feedback</option>
+                                <option value="issue">Issue</option>
+                            </select>
+                            <span id="subjectresult{{@index}}" class="result"></span>
+                            <br>
+                            <label for="status">Status:</label>
+                            <select id="status{{@index}}" name="status" onfocus="oldvalue = this.value" onchange="changed({{@index}}, oldvalue, 'status')">
+                                <option value="New" {{#if (eq this.status 'New')}}selected{{/if}}>New</option>
+                                <option value="Read" {{#if (eq this.status 'Read')}}selected{{/if}}>Read</option>
+                            </select>
+                            <span id="statusresult{{@index}}" class="result"></span>
+                            <br>
+                            <label for="publish-{{@index}}">Published: </label><input type="checkbox" id="publish-{{@index}}" name="publish-{{@index}}" {{#if (eq this.published true)}}checked{{/if}} onchange="publish({{@index}})">
+                        <p>{{this.date}}</p>
+                    <p>{{{this.contentReplace}}}</p>
+                    </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <p>No feedbacks available at the moment.</p>
+        {{/if}}
+    </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -66,10 +67,7 @@
     var oldvalue;
     var item;
 
-    function changed (a, b, c) {
-        index = a;
-        oldvalue = b;
-        item = c;
+    function changed (index, oldvalue, item) {
         let id =  document.getElementById('id' + index).value;
         socket.emit('admin-change-event', id, document.getElementById(item + index).value, item, (response) => {
             if (response.status == 'ok') {
@@ -84,6 +82,17 @@
             document.getElementById('subject' + index).disabled = true;
             document.getElementById('status' + index).disabled = true;
         }
+        });
+    }
+
+    function publish (index) {
+        let id =  document.getElementById('id' + index).value;
+        socket.emit('admin-publish', id, document.getElementById('publish-' + index).checked, (response) => {
+            if (response.status == 'ok') {
+                console.log('Changed: Publish: ' + document.getElementById('publish-' + index).checked);
+            } else {
+                console.log('Failed to change publish status!');
+            }
         });
     }
 </script>

@@ -16,11 +16,13 @@ var io = require('socket.io')(httpServer);
 
 app.use(express.static('public'));
 
-app.use(session({
+const sessionMiddleware = session({
   secret: 'You will never guess it',
   resave: false,
   saveUninitialized: true,
-}));
+});
+
+app.use(sessionMiddleware);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -144,6 +146,7 @@ app.get('/admin/new-post', checkAuth, (request, response) => {
 app.post('/admin/like-post', checkAuth, async (req, res) => {
     const { id } = req.params;
     console.log("POST like hit:", id); // console log
+    Post.updateOne({id: id}, { $inc: { likes: 1 }});
     try {
       const post = await Post.findById(id);
       if (!post) {
@@ -182,6 +185,46 @@ app.get('/feedback', (request, response) => {
         response.render('feedback',
             {
                 title: 'Our Park'
+            }
+        )
+    }
+});
+
+app.get('/view-feedbacks', async (request, response) => {
+
+    const feedbacks = await Feedback.find({"published": "true"});
+
+    const cleanedFeedbacks = feedbacks.toReversed().map(feedback => ({
+        id: feedback.id,
+        likes: feedback.likes,
+        email: feedback.email,
+        content: feedback.content,
+        // replace line breaks with <p> tags to ensure line breaks are displayed properly in the blog posts
+        contentReplace: feedback.content
+            .split(/\r?\n\r?\n/) 
+            .map(p => `<p>${p}</p>`)
+            .join(''),
+        date: feedback.createdAt.toLocaleDateString('en-GB', {
+            weekday: 'long', 
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        }).replace(/\//g, '.') // replace slashes for dots in date formatting
+    }));
+
+    if (request.isAuthenticated()) {
+        response.render('view-feedbacks',
+            {
+                admin: 'admin',
+                title: 'Our Park',
+                feedbacks: cleanedFeedbacks
+            }
+        )
+    } else {
+        response.render('view-feedbacks',
+            {
+                title: 'Our Park',
+                feedbacks: cleanedFeedbacks
             }
         )
     }
@@ -277,6 +320,7 @@ app.post('/login/password', loginValidation, passport.authenticate('local', {
 }));
 
 app.get('/admin/logout', checkAuth, function(req, res, next){
+    io.disconnectSockets();
     req.logout(function(err) {
       if (err) { return next(err); }
       res.redirect('/');
@@ -293,6 +337,7 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
 
     const cleanedFeedbacks = feedbacks.toReversed().map(feedback => ({
         id: feedback.id,
+        published: feedback.published,
         email: feedback.email,
         subject: feedback.subject,
         status: feedback.status,
@@ -347,26 +392,59 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
     )    
 });
 
+// Socket connections
+
+const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
+
+io.use(wrap(sessionMiddleware));
+io.use(wrap(passport.initialize()));
+io.use(wrap(passport.session()));
+
 io.on('connection', function(socket) {
     console.log("a user has connected!");
     socket.on('disconnect', function() {
         console.log('user disconnected');
     });
+    
     socket.on('admin-change-event', function(id, value, item, callback) {
-        let obj = {};
-        if (item == 'subject') {
-            Feedback.updateOne({ _id: id }, { $set: { status: 'New' }}) 
+        if (socket.request.user) {
+            let obj = {};
+            if (item == 'subject') {
+                Feedback.updateOne({ _id: id }, { $set: { status: 'New' }}) 
+                    .catch(err => {
+                        console.log(err);
+                    });       
+            }
+            obj[item] = value;
+            Feedback.updateOne({ _id: id }, { $set: obj})
                 .catch(err => {
                     console.log(err);
-                });       
+                    callback({status: "error"});
+                });
+            callback({status: "ok"});
         }
-        obj[item] = value;
-        Feedback.updateOne({ _id: id }, { $set: obj})
+    });
+
+    socket.on('admin-publish', function(id, value, callback) {
+        if (socket.request.user) {
+            Feedback.updateOne({ _id: id }, { $set: { published: value }})
+                .catch(err => {
+                    console.log(err);
+                    callback({status: "error"});
+                });
+            callback({status: "ok"});
+        }
+    })
+
+    socket.on('like-feedback', async function (id, callback) {
+        await Feedback.updateOne({ _id: id }, { $inc: { likes: 1 }})
             .catch(err => {
                 console.log(err);
                 callback({status: "error"});
             });
-        callback({status: "ok"});
+        
+        let document = await Feedback.findOne({ _id: id });
+        callback({status: "ok", likes: document.likes });
     });
 });
 

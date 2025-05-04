@@ -1,0 +1,41 @@
+<h1>View received feedbacks</h1>
+<br>
+{{#if (eq this.admin "admin")}}{{> admin-navigation}}{{else}}{{> navigation}}{{/if}}
+<br>
+<div class="maincontent">
+    <div class="blogs">
+        <h2>Feedbacks</h2>
+        {{#if feedbacks.length}}
+            <ul>
+                {{#each feedbacks}}
+                    <li>
+                        <h3>{{this.email}}</h3>
+                        <br>
+                        <p>{{this.date}}</p>
+                        <p> Likes: <span id="likes-count-{{this.id}}">{{this.likes}}</span>
+                        <button onclick="like('{{this.id}}')">Like</button></p>
+                        <p>{{{this.contentReplace}}}</p>
+                    </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <p>No feedbacks available at the moment.</p>
+        {{/if}}
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+    var socket = io();
+
+    function like(id) {
+        socket.emit('like-feedback', id, (response) => {
+            if (response.status == 'ok') {
+                console.log('Liked the feedback: ' + response.likes);
+                document.getElementById('likes-count-' + id).innerHTML = response.likes;
+            } else {
+                console.log('Failed to like!');
+            }
+        });
+    }
+</script>
