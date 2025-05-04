@@ -452,6 +452,19 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
     )    
 });
 
+app.post('/admin/delete-post', checkAuth, (req, res) => {
+    let id = req.body.id;
+    console.log('Delete:' + id);
+
+    Post.deleteOne({ _id: id })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send('Error saving the feedback');
+        });
+    res.status(201);
+    res.end();
+});
+
 // Socket connections
 
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
@@ -562,6 +575,7 @@ app.get('/', async (req, res) => {
         const posts = await Post.find();
 
         const cleanedPosts = posts.toReversed().map(post => ({
+            id: post._id,
             title: post.title,
             content: post.content,
             imageUrl: post.imageUrl,
