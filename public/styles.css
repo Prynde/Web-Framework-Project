@@ -234,6 +234,14 @@ form textarea:focus {
     color: #333;
 }
 
+.blogs-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+
 
 @media (max-width: 768px) {
     .weatherbox, .infobox {
