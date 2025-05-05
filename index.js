@@ -285,7 +285,7 @@ app.get('/view-feedbacks', async (request, response) => {
             day: 'numeric'
         }).replace(/\//g, '.'), // replace slashes for dots in date formatting
         reply: feedback.reply,
-        replyDate: feedback.replyDatetoLocaleDateString('en-GB', {
+        replyDate: feedback.replyDate.toLocaleDateString('en-GB', {
             weekday: 'long', 
             year: 'numeric',
             month: 'numeric',
