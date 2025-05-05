@@ -605,12 +605,12 @@ app.get('/', async (req, res) => {
                 .split(/\r?\n\r?\n/) 
                 .map(p => `<p>${p}</p>`)
                 .join(''),
+            likes: post.likes,
             date: post.createdAt.toLocaleDateString('en-GB', {
                 weekday: 'long', 
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',
-            likes: post.likes
             }).replace(/\//g, '.') // replace slashes for dots in date formatting
         }));
 
