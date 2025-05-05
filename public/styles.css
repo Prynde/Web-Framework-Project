@@ -149,6 +149,12 @@ form textarea:focus {
     float: left;
 }
 
+.wind-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .infobox {
     color: #eee;
 	font-size: 20px;
