@@ -7,7 +7,9 @@ const feedbackSchema = new mongoose.Schema({
   createdAt: { type: Date, required: true, default: Date.now },
   status: { type: String, required: true, default: "New" },
   published: {type: Boolean, required: true, default: "false" },
-  likes: { type: Number, required: true, default: 0 }
+  likes: { type: Number, required: true, default: 0 },
+  reply: { type: String, required: true, default: "" },
+  replyDate: { type: Date, required: true, default: Date.now },
 });
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
