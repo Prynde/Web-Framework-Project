@@ -72,9 +72,9 @@
                     <img src="{{this.imageUrl}}" alt="{{this.imageDesc}}" style="max-width: 100%; height: auto;">
                 {{/if}}
                     <p>{{{this.contentReplace}}}</p>
-
-                <p>Likes: <span id="likes-count-{{this._id}}">{{this.likes}}</span>
-                    <button onclick="likePost('{{this._id}}')">Like</button>
+                <p>
+                    <button class="like-post-button" data-id="{{this.id}}">Like</button>
+                    <span id="likes-count-{{this.id}}">{{this.likes}}</span> Likes
                 </p>
                 <br>
                 {{#if (eq ../this.admin "admin")}}<p><button onclick="deletePost('{{this.id}}')">Delete</button></p>{{/if}}
@@ -87,3 +87,32 @@
 </div>
 
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelector(".blogs").addEventListener("click", async (e) => {
+            if (e.target.classList.contains("like-post-button")) {
+                const postId = e.target.dataset.id;
+                try {
+                    let response = await fetch("/like-post", {
+                        method: "POST",
+                        body: JSON.stringify({ id: postId }),
+                        headers: { "Content-Type": "application/json" }
+                    });
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok " + response.statusText);
+                    }
+                    let data = await response.json();
+                    if (data.likes !== undefined) {
+                        document.getElementById(`likes-count-${postId}`).innerText = data.likes;
+                    } else {
+                        console.error("Likes data is missing in the response.");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Request to like the post failed.");
+                }
+            }
+        });
+    });
+</script>

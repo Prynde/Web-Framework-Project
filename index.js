@@ -146,7 +146,8 @@ app.post('/admin/save-post',
       title,
       content,
       imageUrl,
-      imageDesc
+      imageDesc,
+      likes
     });
 
     try {
@@ -199,6 +200,7 @@ app.get('/post/:id', async (req, res) => {
                 .split(/\r?\n\r?\n/)
                 .map(p => `<p>${p}</p>`)
                 .join(''),
+            likes: post.likes,
             date: post.createdAt.toLocaleDateString('en-GB', {
                 weekday: 'long', 
                 year: 'numeric',
@@ -220,29 +222,24 @@ app.get('/post/:id', async (req, res) => {
 
 /* LIKES FOR BLOGPOSTS */
 
-app.post('/admin/like-post', checkAuth, async (req, res) => {
-    const { id } = req.params;
-    console.log("POST like hit:", id); // console log
-    Post.updateOne({id: id}, { $inc: { likes: 1 }});
+// simple implementation of like button with no auth required
+
+app.post('/like-post', async (req, res) => {
+    const postId = req.body.id;
+
     try {
-      const post = await Post.findById(id);
-      if (!post) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-  
-      post.likes += 1;  // increment likes
-      await post.save(); // save back to MongoDB
-  
-      res.status(200).json({ likes: post.likes }); // send back new like count
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error liking the post' });
+        // Increment the like count in the database
+        await Post.updateOne({ _id: postId }, { $inc: { likes: 1 } });
+
+        const updatedPost = await Post.findById(postId);
+
+        // Send the new like count back to the client
+        res.json({ likes: updatedPost.likes });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error liking the post');
     }
-  });
-app.get('/admin/like-post', checkAuth, (req, res) => {
-    response.render('admin-like-post')
-}
-);
+});
 
 
 /* 
@@ -612,7 +609,8 @@ app.get('/', async (req, res) => {
                 weekday: 'long', 
                 year: 'numeric',
                 month: 'numeric',
-                day: 'numeric'
+                day: 'numeric',
+            likes: post.likes
             }).replace(/\//g, '.') // replace slashes for dots in date formatting
         }));
 
