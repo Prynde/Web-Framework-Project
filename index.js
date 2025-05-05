@@ -479,7 +479,7 @@ app.post('/admin/delete-post', checkAuth, (req, res) => {
     Post.deleteOne({ _id: id })
         .catch(err => {
             console.log(err);
-            res.status(500).send('Error saving the feedback');
+            res.status(500).send('Error deleting the post');
         });
     res.status(201);
     res.end();
