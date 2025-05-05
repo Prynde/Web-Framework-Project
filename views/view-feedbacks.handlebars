@@ -15,6 +15,11 @@
                         <p> Likes: <span id="likes-count-{{this.id}}">{{this.likes}}</span>
                         <button onclick="like('{{this.id}}')">Like</button></p>
                         <p>{{{this.contentReplace}}}</p>
+                        <span id="replies-{{@index}}">
+                            {{#if this.reply}}
+                                <p><br><strong>Admin:</strong> {{this.reply}} ({{this.replyDate}})</p>
+                            {{/if}}
+                        </span>
                     </li>
                 {{/each}}
             </ul>
