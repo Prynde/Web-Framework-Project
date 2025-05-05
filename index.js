@@ -283,7 +283,14 @@ app.get('/view-feedbacks', async (request, response) => {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric'
-        }).replace(/\//g, '.') // replace slashes for dots in date formatting
+        }).replace(/\//g, '.'), // replace slashes for dots in date formatting
+        reply: feedback.reply,
+        replyDate: feedback.replyDatetoLocaleDateString('en-GB', {
+            weekday: 'long', 
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        }).replace(/\//g, '.')
     }));
 
     if (request.isAuthenticated()) {
@@ -430,7 +437,14 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
             year: 'numeric',
             month: 'numeric',
             day: 'numeric'
-        }).replace(/\//g, '.') // replace slashes for dots in date formatting
+        }).replace(/\//g, '.'), // replace slashes for dots in date formatting
+        reply: feedback.reply,
+        replyDate: feedback.replyDate.toLocaleDateString('en-GB', {
+            weekday: 'long', 
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        }).replace(/\//g, '.')
     }));
 
     response.render('admin-view-feedbacks',
@@ -461,7 +475,14 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
             year: 'numeric',
             month: 'numeric',
             day: 'numeric'
-        }).replace(/\//g, '.') // replace slashes for dots in date formatting
+        }).replace(/\//g, '.'), // replace slashes for dots in date formatting
+        reply: issue.reply,
+        replyDate: issue.replyDate.toLocaleDateString('en-GB', {
+            weekday: 'long', 
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        }).replace(/\//g, '.')
     }));
 
     response.render('admin-view-issues',
@@ -539,6 +560,41 @@ io.on('connection', function(socket) {
         let document = await Feedback.findOne({ _id: id });
         callback({status: "ok", likes: document.likes });
     });
+    socket.on('admin-reply', async function (id, replyContent, callback) {
+        if (!replyContent || replyContent.trim() === '') {
+            return callback({ status: 'error', message: 'Reply content cannot be empty' });
+        }
+    
+        try {
+            const feedback = await Feedback.findById(id);
+    
+            if (!feedback) {
+                return callback({ status: 'error', message: 'Feedback not found' });
+            }
+    
+            feedback.reply = replyContent;
+            feedback.replyDate = new Date();
+    
+            await feedback.save();
+    
+            // Emit an event to update the reply on the client side
+            io.emit('reply-updated', {
+                id: feedback.id,
+                reply: feedback.reply,
+                replyDate: feedback.replyDate.toLocaleDateString('en-GB', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                }).replace(/\//g, '.'),
+            });
+    
+            callback({ status: 'ok', message: 'Reply saved successfully' });
+        } catch (err) {
+            console.error(err);
+            callback({ status: 'error', message: 'Error replying to feedback' });
+        }
+    });
 });
 
 /*
@@ -585,7 +641,6 @@ async function sendMail(email, subject, text) {
         text: text, // Plain text body
       });
 }
-
 
 /* VISITOR, BLOG POSTS & WEATHER FOR FRONT PAGE */
 

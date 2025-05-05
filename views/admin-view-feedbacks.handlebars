@@ -14,7 +14,7 @@
         }
         if (status === 201) {
             document.getElementById('statusresult' + id).innerHTML = "Status changed: " + oldvalue + " => " + document.getElementById('status' + id).value;
-        } else {
+        } els</select>e {
             document.getElementById('statusresult' + id).innerHTML = "Status change failed!";
         }
         document.getElementById('status' + id).blur();
@@ -50,7 +50,14 @@
                             <br>
                             <label for="publish-{{@index}}">Published: </label><input type="checkbox" id="publish-{{@index}}" name="publish-{{@index}}" {{#if (eq this.published true)}}checked{{/if}} onchange="publish({{@index}})">
                         <p>{{this.date}}</p>
-                    <p>{{{this.contentReplace}}}</p>
+                        <p>{{{this.contentReplace}}}</p>
+                        <span id="replies-{{@index}}">
+                            {{#if this.reply}}
+                                <p><br><strong>Admin:</strong> {{this.reply}} ({{this.replyDate}})</p>
+                            {{/if}}
+                        </span>
+                            <textarea id="reply-text-{{@index}}" class="reply-text" placeholder="Type your reply here..."></textarea>
+                            <button class="reply-button" onclick="reply({{@index}})">Send Reply</button>
                     </li>
                 {{/each}}
             </ul>
@@ -94,5 +101,28 @@
                 console.log('Failed to change publish status!');
             }
         });
+    }
+</script>
+
+<script type="text/javascript">
+    function reply(index) {
+        const replyContent = document.getElementById('reply-text-' + index).value.trim();
+        if (replyContent) {
+            let id = document.getElementById('id' + index).value;
+            socket.emit('admin-reply', id, replyContent, (response) => {
+                if (response.status == 'ok') {
+                    alert("Reply sent successfully!");
+                    const replyContainer = document.getElementById('reply-' + index);
+                    const newReply = document.createElement('p');
+                    newReply.textContent = "Admin: " + replyContent;
+                    replyContainer.appendChild(newReply);
+                    document.getElementById('reply-text-' + index).value = ''; // Clear the textarea
+                } else {
+                    alert("Failed to send reply!");
+                }
+            });
+        } else {
+            alert("Reply cannot be empty!");
+        }
     }
 </script>
