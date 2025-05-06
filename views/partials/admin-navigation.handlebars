@@ -1,4 +1,29 @@
-<div class="navigation">
+<div class="mobile-container" id="navigation-hamburger" role="navigation" aria-label="Main">
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Top Navigation Menu -->
+    <div class="topnav">
+        <div class="container" onclick="myFunction(this)">
+            <div class="bar1"></div>
+            <div class="bar2"></div>
+            <div class="bar3"></div>
+        </div>
+
+        <!-- Navigation links (hidden by default) -->
+        <div id="myLinks">
+            <a href='/' class="navigation-link">Main page</a>
+            <a href='/feedback' class="navigation-link">Give feedback</a>
+            <a href='/view-feedbacks' class="navigation-link">View feedbacks</a>
+            <a href='/admin/new-post' class="navigation-link login-link">New post</a>
+            <a href='/admin/view-feedbacks' class="navigation-link login-link">View feedbacks</a>
+            <a href='/admin/view-issues' class="navigation-link login-link">View issues</a>
+            <a href='/admin/logout' class="navigation-link login-link">Log out</a>
+        </div>
+    </div>
+</div>
+
+<div class="navigation" role="navigation" aria-label="Main" id="navigation-regular">
     <div class="left-links">
         <a href='/' class="navigation-link">Main page</a>
         <a href='/feedback' class="navigation-link">Give feedback</a>
@@ -11,3 +36,29 @@
         <a href='/admin/logout' class="navigation-link login-link">Log out</a>
     </div>
 </div>
+
+<script>
+function myFunction(x) {
+  x.classList.toggle("change");
+  var y = document.getElementById("myLinks");
+  if (y.style.display === "block") {
+    y.style.display = "none";
+  } else {
+    y.style.display = "block";
+  }
+}
+
+navigationSelect();
+
+window.addEventListener('resize', navigationSelect);
+
+function navigationSelect() {
+    if (window.innerWidth <= 1010) {
+        document.getElementById('navigation-hamburger').style.display = 'block';
+        document.getElementById('navigation-regular').style.display = 'none';
+    } else {
+        document.getElementById('navigation-regular').style.display = 'flex';
+        document.getElementById('navigation-hamburger').style.display = 'none';
+    }
+};
+</script>
