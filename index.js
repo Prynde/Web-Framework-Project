@@ -228,6 +228,7 @@ app.get('/post/:id', async (req, res) => {
 
         // pass the cleaned post and comments to the view
         res.render('single-post', {
+            admin: 'admin',
             title: cleanedPost.title,
             post: cleanedPost,
             comments: formattedComments
@@ -781,6 +782,7 @@ API ROUTES
 app.get('/api', (request, response) => {
     response.render('api',
         {
+            admin: 'admin',
             title: 'API Usage Guide'
         }
     )
