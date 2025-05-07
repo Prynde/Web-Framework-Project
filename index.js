@@ -53,7 +53,7 @@ const checkAuth = (request, response, next) => {
     if (request.isAuthenticated()) { 
         return next()
     }
-    response.redirect('/admin/login')
+    response.redirect('/admin/login');
 }
 
 app.engine('handlebars', exphbs.engine({
@@ -455,6 +455,33 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
     )    
 });
 
+app.get('/admin/upload-folder', checkAuth, async function(request, response, next){
+    const files = await fs.readdirSync('uploads');
+    var pageContent = "";
+    
+    for (let file of files) {
+        const post = await Post.findOne({ 'imageUrl': '/uploads/' + file})
+        if (post) {
+            pageContent += '<li><div><img src="/uploads/' + file + '" style="max-width: 100%; height: auto;"><br><p>' + file + ' Is attached to post: <a href="/post/' + post._id + '">' + post._id + '</a></p></div></li><br>';
+        } else {
+            pageContent += '<li><div><img src="/uploads/' + file + '" style="max-width: 100%; height: auto;"><br><p>' + file + ' Is not attached to any post!</p><p><a href="/admin/delete-image/' + file + '">Delete the file</a></div></li><br>';
+        }
+    }
+    
+    console.log(pageContent);
+    response.render('admin-upload-folder',
+    {
+        admin: 'admin',
+        title: 'Browse the contents of upload folder',
+        content: pageContent
+    });
+});
+
+app.get('/admin/delete-image/:file', checkAuth, function(request, response) {
+    fs.unlinkSync('uploads/' + request.params.file);
+    response.redirect('/admin/upload-folder');
+});
+
 app.get('/admin/view-issues', checkAuth, async function(request, response, next){
 
     const issues = await Feedback.find({"subject": "issue"});
@@ -707,6 +734,146 @@ app.get('/', async (req, res) => {
     }
 });
 
+/*
+API ROUTES
+*/
+
+app.get('/api', (request, response) => {
+    response.render('api',
+        {
+            title: 'API Usage Guide'
+        }
+    )
+});
+
+app.get('/api/posts', async (request, response) => {
+    const result = await Post.find()
+    .then((result) => {
+        response.status(200).json (
+            {
+                status: 'success',
+                results: result.length,
+                data: result
+            }
+        )
+    });
+});
+
+app.get('/api/posts/latest', async (request, response) => {
+    const result = await Post.find().sort({_id:-1}).limit(1)
+    .then((result) => {
+        response.status(200).json (
+            {
+                status: 'success',
+                results: result.length,
+                data: result
+            }
+        )
+    });
+});
+
+app.get('/api/posts/search', async (request, response) => {
+    const result = await Post.find({ createdAt:{$gte: new Date(request.query.from),$lt: new Date(request.query.to)} })
+    .then((result) => {
+        response.status(200).json (
+            {
+                status: 'success',
+                results: result.length,
+                data: result
+            }
+        )
+    });
+});
+
+app.post('/api/posts/create', loginValidation, passport.authenticate('local'),
+
+    body('title')
+    .trim()
+    .escape()
+    .notEmpty()
+    .withMessage('Title is required')
+    .isLength({ max: 200 })
+    .withMessage('Title must be under 200 characters'), 
+
+  body('content')
+    .trim()
+    .escape()
+    .notEmpty()
+    .withMessage('Content is required')
+    .isLength({ max: 5000 })
+    .withMessage('Content must be under 5000 characters'), 
+
+  async (request, response) => {
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) {
+      return response.status(400).json({ errors: errors.array() });
+    }
+
+    const { title, content } = request.body;
+    
+    const post = new Post({
+      title,
+      content
+    });
+
+    try {
+      await post.save();
+      response.location('localhost:' + PORT + '/api/posts/view/' + post._id);
+      response.status(201).json(
+          {
+              msg: 'Post added',
+              post
+          }
+      );
+  
+    } catch (err) {
+      console.error(err);
+      response.status(500).send('Error saving post');
+    }
+    request.logout(function(err) {
+        if (err) { return next(err); }
+      });
+});
+
+app.get('/api/posts/view/:id', async (request, response) => {
+    const result = await Post.find({'_id': request.params.id})
+    .then((result) => {
+        response.status(200).json (
+            {
+                status: 'success',
+                results: result.length,
+                data: result
+            }
+        )
+    });
+});
+
+app.patch('/api/posts/like/:id', async (request, response) => {
+    try {
+        const result = await Post.updateOne({ _id: request.params.id }, { $inc: { likes: 1 }})
+        let document = await Feedback.findOne({ _id: request.params.id });
+            response.status(200).json (
+                {
+                    msg: 'Succesfully liked.',
+                    likes: document.likes
+                }
+            )
+    } catch(e) {
+        console.log(e);
+        response.status(500).json (
+            {
+                status: e
+            }
+        );
+    }
+});
+
+app.delete('api/posts/delete', loginValidation, passport.authenticate('local'), async (request, response) => {
+    Post.deleteOne({ _id: request.params.id })
+        .then((result) => {
+        response.json(result);
+    })
+});
 
 function visitors() {   // Return count of visitors since 01.04.2025
     let start = new Date('2025-04-01');

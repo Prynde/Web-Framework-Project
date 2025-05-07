@@ -15,9 +15,11 @@
             <a href='/' class="navigation-link">Main page</a>
             <a href='/feedback' class="navigation-link">Give feedback</a>
             <a href='/view-feedbacks' class="navigation-link">View feedbacks</a>
+            <a href='/api' class="navigation-link">API Guide</a>
             <a href='/admin/new-post' class="navigation-link login-link">New post</a>
             <a href='/admin/view-feedbacks' class="navigation-link login-link">View feedbacks</a>
             <a href='/admin/view-issues' class="navigation-link login-link">View issues</a>
+            <a href='/admin/upload-folder' class="navigation-link login-link">Uploaded images</a>
             <a href='/admin/logout' class="navigation-link login-link">Log out</a>
         </div>
     </div>
@@ -28,11 +30,13 @@
         <a href='/' class="navigation-link">Main page</a>
         <a href='/feedback' class="navigation-link">Give feedback</a>
         <a href='/view-feedbacks' class="navigation-link">View feedbacks</a>
+        <a href='/api' class="navigation-link">API Guide</a>
     </div>
     <div class="right-links">
         <a href='/admin/new-post' class="navigation-link login-link">New post</a>
         <a href='/admin/view-feedbacks' class="navigation-link login-link">View feedbacks</a>
         <a href='/admin/view-issues' class="navigation-link login-link">View issues</a>
+        <a href='/admin/upload-folder' class="navigation-link login-link">Uploaded images</a>
         <a href='/admin/logout' class="navigation-link login-link">Log out</a>
     </div>
 </div>
@@ -53,7 +57,7 @@ navigationSelect();
 window.addEventListener('resize', navigationSelect);
 
 function navigationSelect() {
-    if (window.innerWidth <= 1010) {
+    if (window.innerWidth <= 1320) {
         document.getElementById('navigation-hamburger').style.display = 'block';
         document.getElementById('navigation-regular').style.display = 'none';
     } else {

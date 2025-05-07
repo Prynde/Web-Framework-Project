@@ -1,0 +1,11 @@
+<h1>{{title}}</h1>
+<br>
+{{#if (eq this.admin "admin")}}{{> admin-navigation}}{{else}}{{> navigation}}{{/if}}
+<br>
+<div class="maincontent">
+    <div class="blogs">
+        <ul>
+            {{{content}}}
+        </ul>
+    </div>
+</div>

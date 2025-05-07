@@ -1,0 +1,58 @@
+<h1>{{title}}</h1>
+<br>
+{{#if (eq this.admin "admin")}}{{> admin-navigation}}{{else}}{{> navigation}}{{/if}}
+<br>
+<div class="maincontent">
+    <div id="row1">
+        <div class="blogs">
+            <h2>How to use the API</h2>
+            <br>
+            <h3>Get all posts</h3>
+            <p><b>/api/posts</b></p>
+            <p>This will retrieve all posts in posting order.</p>
+            <br>
+            <h3>Get latest post</h3>
+            <p><b>/api/posts/latest</b></p>
+            <p>This will retrieve the latest post.</p>
+            <br>
+            <h3>Search by Date</h3>
+            <p><b>/api/posts/search?from=FROM_DATE&to=TO_DATE</b></p>
+            <p>This will retrieve all posts posted between FROM_DATE and TO_DATE.</p>
+            <br>
+            <h3>View single post</h3>
+            <p><b>/api/posts/view/POST_ID</b></p>
+            <p>This will retrieve a single post by POST_ID</p>
+            <br>
+            <h3>Like Post</h3>
+            <p><b>localhost:3000/api/posts/like/POST_ID</b></p>
+            <p>This will add a like to the post identified by POST_ID</p>
+            <br>
+            <h3>Create a post (Requires authentication)</h3>
+            <p><b>/api/posts/create</b></p>
+            <p>This will create a new post.
+                <br>
+                Requires the following information in the request message body:
+                <br>
+                <ul class="api">
+                    <li class="api">username</li>
+                    <li class="api">password</li>
+                    <li class="api">title</li>
+                    <li class="api">content</li>
+                </ul>
+            </p>
+            <br>
+            <h3>Delete Post (Requires authentication)</h3>
+            <p><b>localhost:3000/api/posts/delete</b></p>
+            <p>This will delete the post identified by id.
+                <br>
+                Requires the following information in the request message body:
+                <br>
+                <ul class="api">
+                    <li class="api">username</li>
+                    <li class="api">password</li>
+                    <li class="api">id</li>
+                </ul>
+            </p>
+        </div>
+    </div>
+</div>
