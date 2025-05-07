@@ -227,12 +227,20 @@ app.get('/post/:id', async (req, res) => {
         };
 
         // pass the cleaned post and comments to the view
-        res.render('single-post', {
-            admin: 'admin',
-            title: cleanedPost.title,
-            post: cleanedPost,
-            comments: formattedComments
-        });
+        if (req.isAuthenticated()) {
+            res.render('single-post', {
+                admin: 'admin',
+                title: cleanedPost.title,
+                post: cleanedPost,
+                comments: formattedComments
+            });
+        } else {
+            res.render('single-post', {
+                title: cleanedPost.title,
+                post: cleanedPost,
+                comments: formattedComments
+            });
+        }
     } catch (err) {
         console.error(err);
         res.status(500).send('Error retrieving post');
@@ -289,7 +297,6 @@ FEEDBACK FORM ROUTES
 
 app.get('/feedback', (request, response) => {
     if (request.isAuthenticated()) {
-        console.log('admin true');
         response.render('feedback',
             {
                 admin: 'admin',
@@ -509,7 +516,6 @@ app.get('/admin/upload-folder', checkAuth, async function(request, response, nex
         }
     }
     
-    console.log(pageContent);
     response.render('admin-upload-folder',
     {
         admin: 'admin',
@@ -780,12 +786,20 @@ API ROUTES
 */
 
 app.get('/api', (request, response) => {
-    response.render('api',
-        {
-            admin: 'admin',
-            title: 'API Usage Guide'
-        }
-    )
+    if (request.isAuthenticated()) {
+        response.render('api',
+            {
+                admin: 'admin',
+                title: 'API Usage Guide'
+            }
+        )
+    } else {
+        response.render('api',
+            {
+                title: 'API Usage Guide'
+            }
+        )
+    }
 });
 
 app.get('/api/posts', async (request, response) => {
