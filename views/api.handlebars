@@ -8,19 +8,19 @@
             <h2>How to use the API</h2>
             <br>
             <h3>Get all posts</h3>
-            <p><b>/api/posts</b></p>
+            <p><b><a id="preview-link" title="Click to preview API call" href="#" onclick="preview('/api/posts'); return false;">/api/posts</a></b></p>
             <p>This will retrieve all posts in posting order.</p>
             <br>
             <h3>Get latest post</h3>
-            <p><b>/api/posts/latest</b></p>
+            <p><b><a id="preview-link" title="Click to preview API call" href="#" onclick="preview('/api/posts/latest'); return false;">/api/posts/latest</a></b></p>
             <p>This will retrieve the latest post.</p>
             <br>
             <h3>Search by Date</h3>
-            <p><b>/api/posts/search?from=FROM_DATE&to=TO_DATE</b></p>
-            <p>This will retrieve all posts posted between FROM_DATE and TO_DATE.</p>
+            <p><b><a id="preview-link" title="Click to preview API call" href="#" onclick="preview('/api/posts/search?from=2025-05-01&to=2025-05-31'); return false;">/api/posts/search?from=FROM_DATE&to=TO_DATE</a></b></p>
+            <p>This will retrieve all posts posted between FROM_DATE and TO_DATE. Format is YYYY-MM-DD.</p>
             <br>
             <h3>View single post</h3>
-            <p><b>/api/posts/view/POST_ID</b></p>
+            <p><b><a id="preview-link" title="Click to preview API call" href="#" onclick="preview('/api/posts/view/6817cfd3cc9dd197c93f77f6'); return false;">/api/posts/view/POST_ID</a></b></p>
             <p>This will retrieve a single post by POST_ID, also retrieves comments to that post.</p>
             <br>
             <h3>Like Post</h3>
@@ -53,6 +53,19 @@
                     <li class="api">id</li>
                 </ul>
             </p>
+            <br>
+            <p><textarea rows='20' cols='100' id="preview"></textarea></p>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    function preview(link) {
+        fetch(link)
+        .then(response => response.json())
+        .then(json => {
+        var result = JSON.stringify(json, undefined, 2)
+        document.getElementById('preview').innerHTML = result;
+      });
+    }
+</script>
