@@ -107,6 +107,7 @@ const upload = multer({ storage: storage });
 const Post = require('./models/post'); // import the post schema
 const { body, validationResult } = require('express-validator');
 
+// Save new post to front page
 app.post('/admin/save-post', 
   upload.single('image'),
   body('title')
@@ -162,7 +163,7 @@ app.post('/admin/save-post',
   }
 );
 
-  
+// Page to add new post to front page  
 app.get('/admin/new-post', checkAuth, (request, response) => {
     response.render('admin-new-post',
         {
@@ -172,6 +173,7 @@ app.get('/admin/new-post', checkAuth, (request, response) => {
     )
 });
 
+// Confirm new post has been saved
 app.get('/admin/post-saved', checkAuth, (request, response) => {
     response.render('admin-post-saved',
         {
@@ -295,6 +297,7 @@ app.post('/like-post', async (req, res) => {
 FEEDBACK FORM ROUTES
 */
 
+// Write feedback
 app.get('/feedback', (request, response) => {
     if (request.isAuthenticated()) {
         response.render('feedback',
@@ -312,6 +315,7 @@ app.get('/feedback', (request, response) => {
     }
 });
 
+// View public feedbacks
 app.get('/view-feedbacks', async (request, response) => {
 
     const feedbacks = await Feedback.find({"published": "true"});
@@ -405,6 +409,7 @@ app.post('/send-feedback', feedbackValidation, (request, response) => {
         });
 });
 
+// Confirm feedback has been sent/saved
 app.get('/thank-you', (request, response) => {
     if (request.isAuthenticated()) {
         response.render('thank-you',
@@ -441,19 +446,23 @@ const loginValidation = [
         .withMessage('Password is required')
 ];
 
+// Login page
 app.get('/admin/login', (request, response) => {
     response.render('admin-login', { title: "Admin Login", errors: request.session.messages })
     request.session.messages = undefined
 });
 
+// Login handler
 app.post('/login/password', loginValidation, passport.authenticate('local', {
     successRedirect: '/admin/new-post',
     failureRedirect: '/admin/login',
     failureMessage: true
 }));
 
+// Logout handler
 app.get('/admin/logout', checkAuth, function(req, res, next){
     io.disconnectSockets();
+    console.log('Logged out');
     req.logout(function(err) {
       if (err) { return next(err); }
       res.redirect('/');
@@ -464,6 +473,7 @@ app.get('/admin/logout', checkAuth, function(req, res, next){
 ADMIN VIEW FEEDBACK & ISSUES ROUTES
 */
 
+// View all feedbacks
 app.get('/admin/view-feedbacks', checkAuth, async function(request, response, next){
 
     const feedbacks = await Feedback.find({"subject": "feedback"});
@@ -503,6 +513,10 @@ app.get('/admin/view-feedbacks', checkAuth, async function(request, response, ne
     )    
 });
 
+/*
+Admin page for keeping track of images in uploads folder
+*/
+
 app.get('/admin/upload-folder', checkAuth, async function(request, response, next){
     const files = await fs.readdirSync('uploads');
     var pageContent = "";
@@ -524,11 +538,16 @@ app.get('/admin/upload-folder', checkAuth, async function(request, response, nex
     });
 });
 
+/*
+Route for deleting unneeded files
+*/
+
 app.get('/admin/delete-image/:file', checkAuth, function(request, response) {
     fs.unlinkSync('uploads/' + request.params.file);
     response.redirect('/admin/upload-folder');
 });
 
+// View all issues
 app.get('/admin/view-issues', checkAuth, async function(request, response, next){
 
     const issues = await Feedback.find({"subject": "issue"});
@@ -567,6 +586,10 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
     )    
 });
 
+/*
+Route for deleting posts from front page
+*/
+
 app.post('/admin/delete-post', checkAuth, (req, res) => {
     let id = req.body.id;
     console.log('Delete:' + id);
@@ -581,7 +604,7 @@ app.post('/admin/delete-post', checkAuth, (req, res) => {
 });
 
 // Socket connections
-
+// Auth stuff
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 
 io.use(wrap(sessionMiddleware));
@@ -634,39 +657,42 @@ io.on('connection', function(socket) {
         let document = await Feedback.findOne({ _id: id });
         callback({status: "ok", likes: document.likes });
     });
+    
     socket.on('admin-reply', async function (id, replyContent, callback) {
-        if (!replyContent || replyContent.trim() === '') {
-            return callback({ status: 'error', message: 'Reply content cannot be empty' });
-        }
-    
-        try {
-            const feedback = await Feedback.findById(id);
-    
-            if (!feedback) {
-                return callback({ status: 'error', message: 'Feedback not found' });
+        if (socket.request.user) {
+            if (!replyContent || replyContent.trim() === '') {
+                return callback({ status: 'error', message: 'Reply content cannot be empty' });
             }
-    
-            feedback.reply = replyContent;
-            feedback.replyDate = new Date();
-    
-            await feedback.save();
-    
-            // Emit an event to update the reply on the client side
-            io.emit('reply-updated', {
-                id: feedback.id,
-                reply: feedback.reply,
-                replyDate: feedback.replyDate.toLocaleDateString('en-GB', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                }).replace(/\//g, '.'),
-            });
-    
-            callback({ status: 'ok', message: 'Reply saved successfully' });
-        } catch (err) {
-            console.error(err);
-            callback({ status: 'error', message: 'Error replying to feedback' });
+        
+            try {
+                const feedback = await Feedback.findById(id);
+        
+                if (!feedback) {
+                    return callback({ status: 'error', message: 'Feedback not found' });
+                }
+        
+                feedback.reply = replyContent;
+                feedback.replyDate = new Date();
+        
+                await feedback.save();
+        
+                // Emit an event to update the reply on the client side
+                io.emit('reply-updated', {
+                    id: feedback.id,
+                    reply: feedback.reply,
+                    replyDate: feedback.replyDate.toLocaleDateString('en-GB', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                    }).replace(/\//g, '.'),
+                });
+        
+                callback({ status: 'ok', message: 'Reply saved successfully' });
+            } catch (err) {
+                console.error(err);
+                callback({ status: 'error', message: 'Error replying to feedback' });
+            }
         }
     });
 });
@@ -722,8 +748,8 @@ app.get('/', async (req, res) => {
     try {
         let weatherData = await weather();
         const posts = await Post.find();
-
-        const cleanedPosts = posts.toReversed().map(post => ({
+        const comments = await Comment.aggregate([{$group : {_id : '$postId', count : {$sum : 1}}}]); // Count comments per postId
+        const cleanedPosts = (comments, posts.toReversed().map((post) => ({
             id: post._id,
             title: post.title,
             content: post.content,
@@ -735,13 +761,14 @@ app.get('/', async (req, res) => {
                 .map(p => `<p>${p}</p>`)
                 .join(''),
             likes: post.likes,
+            comments: comments[comments.findIndex(x => x._id == post._id.toString())] ? comments[comments.findIndex(x => x._id == post._id.toString())].count : '0', // If comments exist, show count, otherwise show 0
             date: post.createdAt.toLocaleDateString('en-GB', {
                 weekday: 'long', 
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',
             }).replace(/\//g, '.') // replace slashes for dots in date formatting
-        }));
+        })));
 
         if (req.isAuthenticated()) {
             res.render('index', {
@@ -785,6 +812,7 @@ app.get('/', async (req, res) => {
 API ROUTES
 */
 
+// API guide
 app.get('/api', (request, response) => {
     if (request.isAuthenticated()) {
         response.render('api',
@@ -802,6 +830,7 @@ app.get('/api', (request, response) => {
     }
 });
 
+// All posts
 app.get('/api/posts', async (request, response) => {
     const result = await Post.find()
     .then((result) => {
@@ -815,6 +844,7 @@ app.get('/api/posts', async (request, response) => {
     });
 });
 
+// Latest post
 app.get('/api/posts/latest', async (request, response) => {
     const result = await Post.find().sort({_id:-1}).limit(1)
     .then((result) => {
@@ -828,6 +858,7 @@ app.get('/api/posts/latest', async (request, response) => {
     });
 });
 
+// Search posts by date
 app.get('/api/posts/search', async (request, response) => {
     const result = await Post.find({ createdAt:{$gte: new Date(request.query.from),$lt: new Date(request.query.to)} })
     .then((result) => {
@@ -841,6 +872,7 @@ app.get('/api/posts/search', async (request, response) => {
     });
 });
 
+// Create a new post (Requires authentication)
 app.post('/api/posts/create', loginValidation, passport.authenticate('local'),
 
     body('title')
@@ -891,19 +923,21 @@ app.post('/api/posts/create', loginValidation, passport.authenticate('local'),
       });
 });
 
+// View single post and it's comments
 app.get('/api/posts/view/:id', async (request, response) => {
-    const result = await Post.find({'_id': request.params.id})
-    .then((result) => {
-        response.status(200).json (
-            {
-                status: 'success',
-                results: result.length,
-                data: result
-            }
-        )
-    });
+    let post = await Post.find({'_id': request.params.id})
+    let comments = await Comment.find({'postId': request.params.id})
+    
+    response.status(200).json (
+        {
+            status: 'success',
+            results: post.length + ' post, ' + comments.length + ' comments',
+            data: {post, comments}
+        }
+    )
 });
 
+// Like a post
 app.patch('/api/posts/like/:id', async (request, response) => {
     try {
         const result = await Post.updateOne({ _id: request.params.id }, { $inc: { likes: 1 }})
@@ -924,6 +958,7 @@ app.patch('/api/posts/like/:id', async (request, response) => {
     }
 });
 
+// Delete post (Requires authentication)
 app.delete('api/posts/delete', loginValidation, passport.authenticate('local'), async (request, response) => {
     Post.deleteOne({ _id: request.params.id })
         .then((result) => {
@@ -953,12 +988,13 @@ function visitors() {   // Return count of visitors since 01.04.2025
 
 let wmo = JSON.parse(fs.readFileSync('wmo.json', 'utf-8'));
 
+// Retrieve weather data
 async function weather() {
     let weatherData = await fetch('https://api.open-meteo.com/v1/forecast?latitude=60.9167&longitude=24.6333&daily=temperature_2m_max,temperature_2m_min&current=is_day,temperature_2m,wind_direction_10m,cloud_cover,wind_speed_10m,wind_gusts_10m,precipitation,weather_code&timezone=auto')
     .then(res => res.json())
     return weatherData;
 }
 
-
+// Create listener for connections
 const PORT = process.env.PORT || 3300;
 httpServer.listen(PORT, () => console.log(`App listening on port ${PORT}`));
