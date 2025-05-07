@@ -1,16 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-</head>
-<body>
-    <h1>{{title}}</h1>
-    <p>{{{post.contentReplace}}}</p>
-    {{#if post.imageUrl}}
-        <img src="{{post.imageUrl}}" alt="Post Image">
-    {{/if}}
-    <p>Posted on: {{post.date}}</p>
-</body>
-</html>
+<h1>Welcome to the homepage of Our Park</h1>
+<br>
+{{#if (eq this.admin "admin")}}{{> admin-navigation}}{{else}}{{> navigation}}{{/if}}
+<br>
+
+<div class="single-post-container">
+    <div class="single-post-box">
+        <h2>{{title}}</h2>
+        <p>{{{post.contentReplace}}}</p>
+        {{#if post.imageUrl}}
+            <img class="post-image" src="{{post.imageUrl}}" alt="Post Image">
+        {{/if}}
+        <p class="post-date">Posted on: {{post.date}}</p>
+    </div>
+
+    <div class="comment-section">
+        <h2>Comments</h2>
+        <ul class="comment-list">
+            {{#each comments}}
+                <li class="comment-item">
+                    <div class="comment-header">{{this.author}}</div>
+                    <div class="comment-date">{{this.createdAt}}</div>
+                    <div class="comment-content">{{this.content}}</div>
+                </li>
+            {{/each}}
+        </ul>
+
+        <form action="/post/{{post._id}}/comments" method="POST" class="comment-form">
+            <textarea name="content" required placeholder="Add a comment..."></textarea><br>
+            <button type="submit">Add Comment</button>
+        </form>
+    </div>
+</div>
