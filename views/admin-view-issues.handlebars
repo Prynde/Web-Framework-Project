@@ -50,6 +50,13 @@
                         <span id="statusresult{{@index}}" class="result"></span>
                     <p>{{this.date}}</p>
                    <p>{{{this.contentReplace}}}</p>
+                   <span id="replies-{{@index}}">
+                            {{#if this.reply}}
+                                <p><br><strong>Admin:</strong> {{this.reply}} ({{this.replyDate}})</p>
+                            {{/if}}
+                        </span>
+                            <textarea id="reply-text-{{@index}}" class="reply-text" placeholder="Type your reply here..."></textarea>
+                            <button class="reply-button" onclick="reply({{@index}})">Send Reply</button>
                 </li>
             {{/each}}
         </ul>
@@ -84,5 +91,28 @@
             document.getElementById('status' + index).disabled = true;
         }
         });
+    }
+</script>
+
+<script type="text/javascript">
+    function reply(index) {
+        const replyContent = document.getElementById('reply-text-' + index).value.trim();
+        if (replyContent) {
+            let id = document.getElementById('id' + index).value;
+            socket.emit('admin-reply', id, replyContent, (response) => {
+                if (response.status == 'ok') {
+                    alert("Reply sent successfully!");
+                    const replyContainer = document.getElementById('reply-' + index);
+                    const newReply = document.createElement('p');
+                    newReply.textContent = "Admin: " + replyContent;
+                    replyContainer.appendChild(newReply);
+                    document.getElementById('reply-text-' + index).value = ''; // Clear the textarea
+                } else {
+                    alert("Failed to send reply!");
+                }
+            });
+        } else {
+            alert("Reply cannot be empty!");
+        }
     }
 </script>
