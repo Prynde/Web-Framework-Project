@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
@@ -182,7 +182,7 @@ app.get('/admin/post-saved', checkAuth, (request, response) => {
 });
 
 
-// route for single post view
+// single post view
 
 app.get('/post/:id', async (req, res) => {
     try {
@@ -192,7 +192,24 @@ app.get('/post/:id', async (req, res) => {
             return res.status(404).send('Post not found');
         }
 
+        // fetch the post's comments
+        const comments = await Comment.find({ postId: post._id }).sort({ createdAt: -1 });
+
+        // format comments
+        const formattedComments = comments.map(c => ({
+            content: c.content,
+            createdAt: c.createdAt.toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        }));
+
+        // clean up post data
         const cleanedPost = {
+            _id: post._id,
             title: post.title,
             content: post.content,
             imageUrl: post.imageUrl,
@@ -209,15 +226,38 @@ app.get('/post/:id', async (req, res) => {
             }).replace(/\//g, '.')
         };
 
+        // pass the cleaned post and comments to the view
         res.render('single-post', {
             title: cleanedPost.title,
-            post: cleanedPost
+            post: cleanedPost,
+            comments: formattedComments
         });
     } catch (err) {
         console.error(err);
         res.status(500).send('Error retrieving post');
     }
 });
+
+// comment routes
+const Comment = require('./models/comments');
+
+app.post('/post/:id/comments', async (req, res) => {
+    console.log('POST /post/:id/comments hit for', req.params.id);
+    console.log('req.body.content:', req.body.content);
+    console.log('req.params.id:', req.params.id);
+    
+    try {
+        await Comment.create({
+            postId: req.params.id,
+            content: req.body.content,
+        });
+        res.redirect(`/post/${req.params.id}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error adding comment');
+    }
+});
+
 
 
 /* LIKES FOR BLOGPOSTS */
