@@ -107,7 +107,7 @@ const upload = multer({ storage: storage });
 const Post = require('./models/post'); // import the post schema
 const { body, validationResult } = require('express-validator');
 
-// Save new post to front page
+// route to save a new blog post
 app.post('/admin/save-post', 
   upload.single('image'),
   body('title')
@@ -144,7 +144,7 @@ app.post('/admin/save-post',
 
     try {
       await post.save();
-      res.redirect('/admin/post-saved'); // Redirect after saving the post
+      res.redirect('/admin/post-saved'); // redirect to "post saved succesfully" after saving post
     } catch (err) {
       console.error(err);
       res.status(500).send('Error saving post');
@@ -154,7 +154,8 @@ app.post('/admin/save-post',
   }
 );
 
-// Page to add new post to front page  
+// pass new post & post saved pages to the view
+
 app.get('/admin/new-post', checkAuth, (request, response) => {
     response.render('admin-new-post',
         {
@@ -164,7 +165,6 @@ app.get('/admin/new-post', checkAuth, (request, response) => {
     )
 });
 
-// Confirm new post has been saved
 app.get('/admin/post-saved', checkAuth, (request, response) => {
     response.render('admin-post-saved',
         {
@@ -175,7 +175,7 @@ app.get('/admin/post-saved', checkAuth, (request, response) => {
 });
 
 
-// single post view
+// single post view 
 
 app.get('/post/:id', async (req, res) => {
     try {
@@ -241,6 +241,7 @@ app.get('/post/:id', async (req, res) => {
 });
 
 // comment routes
+
 const Comment = require('./models/comments');
 
 app.post('/post/:id/comments', async (req, res) => {
