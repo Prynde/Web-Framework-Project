@@ -72,13 +72,18 @@
                     <img src="{{this.imageUrl}}" alt="{{this.imageDesc}}" style="max-width: 100%; height: auto;">
                 {{/if}}
                     <p>{{{this.contentReplace}}}</p>
-                <p>
-                    <button class="like-post-button" data-id="{{this.id}}">Like &#x1F44D</button>
-                    <span id="likes-count-{{this.id}}">{{this.likes}}</span> Likes 
-                </p>
-                <p>Comments: {{comments}}</p>
-                <br>
-                {{#if (eq ../this.admin "admin")}}<p><button onclick="deletePost('{{this.id}}')">Delete</button></p>{{/if}}
+                    <br><button class="like-post-button" data-id="{{this.id}}">Like &#x1F44D</button>
+                    <br>
+                    <br>                
+                    <p>Likes: <span id="likes-count-{{this.id}}">{{this.likes}}</span><br></p>
+                    <p><a href="/post/{{this.id}}">Comments</a>: {{comments}}</p><br>
+                               <br>
+                {{#if (eq ../this.admin "admin")}}
+                    <p>
+                        <button onclick="window.location.href='/admin/edit-post/{{this.id}}'">Edit</button> 
+                        <button onclick="deletePost('{{this.id}}')">Delete</button>
+                    </p>
+                {{/if}}
                 </li>
             {{/each}}
         </ul>

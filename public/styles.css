@@ -13,14 +13,27 @@ body {
     min-width: 100vw;
 }
 
+body a {
+    color: #0a574c; 
+    font-weight: bold;
+    text-decoration: underline solid 3px;
+
+}
+
+body a:hover {
+    color: #0e8b79;
+    text-decoration: underline solid 3px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+body a:active {
+    color: #16a590; 
+}
+
 h1 {
     background-color: mediumseagreen;
     color: #333; 
     padding: 1em 2em;
-}
-
-.navigation {
-    margin: 10px;
 }
 
 span.result {
@@ -289,6 +302,7 @@ form textarea:focus {
 
 .single-post-box {
     margin-bottom: 30px;
+    margin-top: 20px;
 }
 
 .single-post-box h2 {
@@ -354,8 +368,6 @@ form textarea:focus {
     line-height: 1.4;
 }
 
-
-
 /* button styles  */
 
 button {
@@ -382,6 +394,18 @@ button:active {
     transform: translateY(0); 
 }
 
+.center-button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.center-button-container p {
+    margin: 0; 
+}
+
+.comment-section {
+    margin-top: 30px; 
+}
 
 /* navigation bar  */
 
@@ -393,7 +417,11 @@ button:active {
     padding: 15px 30px; 
     background-color: #0a574c; 
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 0; 
+    margin: 0px;
+}
+
+.navigation a:hover {
+    text-decoration: none;
 }
 
 /* main & feedback links */

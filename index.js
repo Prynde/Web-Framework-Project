@@ -587,7 +587,7 @@ app.get('/admin/view-issues', checkAuth, async function(request, response, next)
 });
 
 /*
-Route for deleting posts from front page
+Routes for deleting and editing posts from front page
 */
 
 app.post('/admin/delete-post', checkAuth, (req, res) => {
@@ -602,6 +602,55 @@ app.post('/admin/delete-post', checkAuth, (req, res) => {
     res.status(201);
     res.end();
 });
+
+app.get('/admin/edit-post/:id', async (req, res) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).send('Post not found');
+  
+      if (!req.isAuthenticated || !req.isAuthenticated()) {
+        return res.redirect('/');
+      }
+  
+      res.render('edit-post', { post: {
+        id: post._id,
+        title: post.title,
+        content: post.content,
+        imageUrl: post.imageUrl,
+        imageDesc: post.imageDesc
+      }});
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Server error');
+    }
+  });
+
+
+app.post('/admin/edit-post/:id', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return res.redirect('/');
+    }
+
+    const { title, content, imageDesc } = req.body;
+    const updateData = {
+      title,
+      content,
+      imageDesc
+    };
+
+    if (req.file) {
+      updateData.imageUrl = '/uploads/' + req.file.filename;
+    }
+
+    await Post.findByIdAndUpdate(req.params.id, updateData);
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Failed to update post');
+  }
+});
+
 
 // Socket connections
 // Auth stuff
