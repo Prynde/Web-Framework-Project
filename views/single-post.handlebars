@@ -6,10 +6,12 @@
 <div class="single-post-container">
     <div class="single-post-box">
         <h2>{{title}}</h2>
-        <p>{{{post.contentReplace}}}</p>
+
         {{#if post.imageUrl}}
             <img class="post-image" src="{{post.imageUrl}}" alt="Post Image">
         {{/if}}
+        
+        <p>{{{post.contentReplace}}}</p>
         <p class="post-date">Posted on: {{post.date}}</p>
     </div>
 

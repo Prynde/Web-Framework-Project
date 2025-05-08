@@ -126,14 +126,6 @@ app.post('/admin/save-post',
     .isLength({ max: 5000 })
     .withMessage('Content must be under 5000 characters'), 
 
-    body('imageDesc')
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage('Image description is required')
-    .isLength({ max: 100 })
-    .withMessage('Image description must be under 100 characters'), 
-
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -148,7 +140,6 @@ app.post('/admin/save-post',
       content,
       imageUrl,
       imageDesc,
-      likes
     });
 
     try {

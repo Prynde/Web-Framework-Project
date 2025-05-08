@@ -14,9 +14,9 @@
         <textarea name="content" id="content" rows="10" cols="46" required>{{post.content}}</textarea>
       </div>
       <div class="add-image">
-        <p>Image:</p><br>
+        <p>Replace Image:</p><br>
         <input type="file" name="image" accept="image/*"><br>
-        <p>Current image: {{post.imageUrl}}</p>
+        <p>Current image: <a href="{{post.imageUrl}}" target="_blank">{{post.imageUrl}}</a></p><br>
       </div>
       <label for="imageDesc">Image description:</label>
       <input type="text" name="imageDesc" id="imageDesc" value="{{post.imageDesc}}">
