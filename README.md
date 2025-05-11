@@ -13,3 +13,15 @@ Admin pages (bcrypt & passport for session validation)
     -view received issues and react to them
 Socket.io for server-client communication to update message-data @ DB (Currently: status (auth), subject (auth), feedback-likes. To be expanded)
 more funtionalities to come.
+
+Accessibility considerations:
+    -Website has a decent color contrast for users
+    -Keyboard navigation is logical and easy
+    -Logical header structure and navigation
+    -Pictures and buttons have descriptive alt text
+    -Back to main page button
+    -Evaluation tool usage
+    Issues:
+     -<div> usage should be replaced with better semantic elements such as <main>, <nav> and <section>.
+        
+    
