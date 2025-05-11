@@ -22,6 +22,6 @@ Accessibility considerations:
     -Back to main page button
     -Evaluation tool usage
     Issues:
-     -<div> usage should be replaced with better semantic elements such as <main>, <nav> and <section>.
+     -"div" usage should be replaced with better semantic elements such as "main", "nav" and "section".
         
     
